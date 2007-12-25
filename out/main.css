@@ -3,6 +3,16 @@ body {
   font-size: 90%;
 }
 
+h1 {
+  margin: 0;
+  text-align: center;
+}
+
+.subtitle {
+  color: #666;
+  text-align: center;
+}
+
 .hidden {
   display: none;
 }

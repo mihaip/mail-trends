@@ -248,4 +248,32 @@ class StatGroup(Stat):
         searchList = {"stats": self.__stats})
     return str(t)
     
+class TitleStat(Stat):
+  _TIME_FORMAT = "%B %d %Y"
   
+  def __init__(self, date_range, title):
+    Stat.__init__(self)
+    
+    start_sec, end_sec = date_range
+    self.__start = time.strftime(
+        TitleStat._TIME_FORMAT, time.localtime(start_sec))
+    self.__end = time.strftime(
+        TitleStat._TIME_FORMAT, time.localtime(end_sec))
+    
+    self.__title = title
+    
+    self.__message_count = 0
+  
+  def ProcessMessageInfo(self, message_info):
+    self.__message_count += 1
+  
+  def GetHtml(self):
+    t = Template(
+        file="templates/title-stat.tmpl",
+        searchList = {
+          "title": self.__title,
+          "start": self.__start,
+          "end": self.__end,
+          "message_count": self.__message_count,
+        })
+    return str(t)
