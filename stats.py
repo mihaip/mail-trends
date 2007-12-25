@@ -20,7 +20,11 @@ class Stat(object):
   def __init__(self):
     self.id = "stat-%d" % Stat._IdIndex
     Stat._IdIndex += 1
-  
+
+class ChartStat(Stat):
+  def __init__(self):
+    Stat.__init__(self)
+    
   def _GetRescaledData(self, data, data_max):
     # Use the extended encoding if we don't have too many data points
     if data_max:
@@ -48,7 +52,7 @@ class Stat(object):
       else:
         return max
 
-class BucketStat(Stat):
+class BucketStat(ChartStat):
   def __init__(self, bucket_count, title, width, height):
     Stat.__init__(self) 
     
@@ -96,7 +100,7 @@ class BucketStat(Stat):
     # stat collections and individual stats similar appearance
     
     t = Template(
-        file="templates/stat.tmpl",
+        file="templates/bucket-stat.tmpl",
         searchList = {
           "id": self.id,
           "title": self.__title,
