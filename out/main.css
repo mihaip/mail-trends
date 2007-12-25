@@ -1,0 +1,12 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 90%;
+}
+
+.hidden {
+  display: none;
+}
+
+.stat-group .stat-group-item {
+  vertical-align: top;
+}

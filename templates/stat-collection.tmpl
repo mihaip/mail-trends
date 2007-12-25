@@ -1,0 +1,21 @@
+<div class="stat stat-collection" id="$collection.id">
+  <h3>
+    $collection.title
+    <select onchange="toggleStatCollectionSelection(this)">
+    #for $stat_ref in $stat_refs
+      <option value="$stat_ref.stat.id">
+        $stat_ref.title
+      </option>
+    #end for
+    </select>
+  </h3>
+  
+  #for $stat_ref in $stat_refs
+    $stat_ref.stat.GetHtml
+  #end for
+</div>
+
+## Initialize display of stat collection
+<script type="text/javascript">
+  toggleStatCollectionSelection(_("#$collection.id select").get(0));
+</script>
