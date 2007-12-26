@@ -192,6 +192,55 @@ class DayStat(BucketStat):
   def _GetBucketLabels(self):
     return [str(d) for d in range(1, self.__days_in_month + 1)]
 
+class SizeBucketStat(BucketStat):
+  _SIZE_BUCKETS = [
+    0,
+    1 << 9,
+    1 << 10,
+    1 << 11,
+    1 << 12,
+    1 << 13,
+    1 << 14,
+    1 << 15,
+    1 << 16,
+    1 << 17,
+    1 << 18,
+    1 << 19,
+    1 << 20,
+    1 << 21,
+    1 << 22,
+    1 << 23,
+    1 << 24,
+  ]
+  
+  def __init__(self, title):
+    BucketStat.__init__(
+      self,
+      len(SizeBucketStat._SIZE_BUCKETS),
+      "%s message sizes" % title,
+      500,
+      200)
+
+  def _GetBucket(self, message_info):
+    size = message_info.size
+    
+    for i in reversed(xrange(0, len(SizeBucketStat._SIZE_BUCKETS))):
+      if size >= SizeBucketStat._SIZE_BUCKETS[i]:
+        return i
+  
+  def _GetBucketLabels(self):
+    labels = []
+    
+    for s in SizeBucketStat._SIZE_BUCKETS:
+      if s % (1 << 20) == 0:
+        labels.append("%dM" % (s/(1 << 20)))
+      elif s % (1 << 10) == 0:
+        labels.append("%dK" % (s/(1 << 10)))
+      else:
+        labels.append(str(s))
+    
+    return labels
+
 class StatCollection(Stat):
   def __init__(self, title):
     Stat.__init__(self)

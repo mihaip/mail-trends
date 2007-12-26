@@ -22,7 +22,7 @@ class MessageInfo(object):
   
   def PopulateField(self, name, value):
     if name == "UID": self.__uid = value
-    elif name == "RFC822.SIZE": self.__size = int(value)
+    elif name == "RFC822.SIZE": self.size = int(value)
     elif name == "FLAGS": self.__flags = value
     elif name == "INTERNALDATE":
       self.__date_string = value
@@ -44,7 +44,7 @@ class MessageInfo(object):
   def GetMessageId(self):
     if not self.__message_id:
       d = md5.new()
-      d.update(str(self.__size))
+      d.update(str(self.size))
       d.update(self.__date_string)
       self.__message_id = d.digest()
     return self.__message_id
@@ -65,4 +65,4 @@ class MessageInfo(object):
 
   def __str__(self):
     return "%s (size: %d, date: %s)" % (
-        self.__headers["subject"], self.__size, self.__date_string)
+        self.__headers["subject"], self.size, self.__date_string)
