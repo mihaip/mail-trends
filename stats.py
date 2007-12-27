@@ -1,4 +1,5 @@
 import calendar
+import heapq
 import time
 
 from Cheetah.Template import Template
@@ -241,6 +242,34 @@ class SizeBucketStat(BucketStat):
     
     return labels
 
+class SizeTableStat(Stat):
+  _TABLE_SIZE = 40
+  
+  def __init__(self, title):
+    self.__title = "%s top messages by size"
+    self.__size_heap = []
+  
+  def ProcessMessageInfo(self, message_info):
+    pair = [message_info.size, message_info]
+    if len(self.__size_heap) < SizeTableStat._TABLE_SIZE:
+      heapq.heappush(self.__size_heap, pair)
+    else:
+      min_pair = self.__size_heap[0]
+      if pair[0] > min_pair[0]:
+        heapq.heapreplace(self.__size_heap, pair)
+  
+  def GetHtml(self):
+    out = []
+    
+    sorted = self.__size_heap
+    sorted.sort(reverse=True)
+    
+    for size, m in self.__size_heap:
+      print m
+      out.append("%s %d" % (str(m), size))
+    
+    return "<br>".join(out)
+    
 class StatCollection(Stat):
   def __init__(self, title):
     Stat.__init__(self)

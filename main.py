@@ -74,7 +74,10 @@ def InitStats(date_range):
       stats.MonthStatCollection(date_range, "All Mail"),
       stats.DayStatCollection(date_range, "All Mail"),
     ),
-    stats.SizeBucketStat("All Mail"),
+    stats.StatGroup(
+      stats.SizeBucketStat("All Mail"),
+      stats.SizeTableStat("All Mail"),
+    ),
   ]
   
   return s
