@@ -8,6 +8,10 @@ h1 {
   text-align: center;
 }
 
+h3 {
+  margin: 0 0 0.25em 0;
+}
+
 .subtitle {
   color: #666;
   text-align: center;
@@ -17,6 +21,51 @@ h1 {
   display: none;
 }
 
+.stat-group {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
 .stat-group .stat-group-item {
   vertical-align: top;
+  padding: 0.5em;
+}
+
+.table-stat-container select {
+  float: right;
+}
+
+.table-stat {
+  border-spacing: 0;
+  border-collapse: collapse;
+  width: 100%;
+  clear: both;
+}
+
+.table-stat th,
+.table-stat td {
+  padding: 2px;
+}
+
+.table-stat th {
+  border-bottom: solid 2px #666;
+  background: #eee;
+}
+
+.table-stat td {
+  border-top: solid 1px #eee;
+}
+
+.table-stat th.message {
+  text-align: left;
+}
+
+.table-stat td.size {
+  text-align: right;
+}
+
+table.top10 tr.top20,
+table.top10 tr.top40,
+table.top20 tr.top40 {
+  display: none;
 }

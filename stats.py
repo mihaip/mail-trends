@@ -15,6 +15,25 @@ def _GetYearRange(date_range):
   end_year = time.localtime(end).tm_year
   return range(start_year, end_year + 1)
 
+def _GetDisplaySize(bytes):
+  megabytes = bytes/(1 << 20)
+  
+  if megabytes:
+    if bytes % (1 << 20) == 0:
+      return "%dM" % (bytes/(1 << 20))
+    else:
+      return "%.2fM" % (float(bytes)/float(1 << 20))
+  
+  kilobytes = bytes/(1 << 10)
+  
+  if kilobytes:
+    if bytes % (1 << 10) == 0:
+      return "%dK" % (bytes/(1 << 10))
+    else:
+      return "%.2fK" % (float(bytes)/float(1 << 10))
+
+  return str(bytes)
+  
 class Stat(object):
   _IdIndex = 0
 
@@ -211,7 +230,6 @@ class SizeBucketStat(BucketStat):
     1 << 21,
     1 << 22,
     1 << 23,
-    1 << 24,
   ]
   
   def __init__(self, title):
@@ -230,46 +248,74 @@ class SizeBucketStat(BucketStat):
         return i
   
   def _GetBucketLabels(self):
-    labels = []
-    
-    for s in SizeBucketStat._SIZE_BUCKETS:
-      if s % (1 << 20) == 0:
-        labels.append("%dM" % (s/(1 << 20)))
-      elif s % (1 << 10) == 0:
-        labels.append("%dK" % (s/(1 << 10)))
-      else:
-        labels.append(str(s))
-    
-    return labels
+    return [_GetDisplaySize(s) for s in SizeBucketStat._SIZE_BUCKETS]
 
-class SizeTableStat(Stat):
+class SizeFormatter(object):
+  def __init__(self):
+    self.header = "Size"
+    self.css_class = "size"
+  
+  def Format(self, message_info):
+    return _GetDisplaySize(message_info.size)
+
+class SubjectSenderFormatter(object):
+  def __init__(self):
+    self.header = "Message"
+    self.css_class = "message"
+  
+  def Format(self, message_info):
+    return "<b>%s</b> from <i>%s</i>" % (
+        message_info.headers["subject"], message_info.headers["from"])
+
+_SizeHeapMap = lambda m: m
+_SizeHeapIndex = lambda m: m.size
+
+class TableStat(Stat):
   _TABLE_SIZE = 40
   
-  def __init__(self, title):
-    self.__title = "%s top messages by size"
-    self.__size_heap = []
-  
+  def __init__(self, title, map_func, index_func, formatters):
+    Stat.__init__(self)
+    self.__title = title
+    self.__heap = []
+    self.__map_func = map_func
+    self.__index_func = index_func
+    self.__formatters = formatters
+
   def ProcessMessageInfo(self, message_info):
-    pair = [message_info.size, message_info]
-    if len(self.__size_heap) < SizeTableStat._TABLE_SIZE:
-      heapq.heappush(self.__size_heap, pair)
+    obj = self.__map_func(message_info)
+    index = self.__index_func(obj)
+    
+    pair = [index, obj]
+    if len(self.__heap) < TableStat._TABLE_SIZE:
+      heapq.heappush(self.__heap, pair)
     else:
-      min_pair = self.__size_heap[0]
+      min_pair = self.__heap[0]
       if pair[0] > min_pair[0]:
-        heapq.heapreplace(self.__size_heap, pair)
-  
+        heapq.heapreplace(self.__heap, pair)
+
   def GetHtml(self):
-    out = []
-    
-    sorted = self.__size_heap
+    sorted = self.__heap
     sorted.sort(reverse=True)
-    
-    for size, m in self.__size_heap:
-      print m
-      out.append("%s %d" % (str(m), size))
-    
-    return "<br>".join(out)
-    
+  
+    t = Template(
+        file="templates/table-stat.tmpl",
+        searchList = {
+          "id": self.id,
+          "title": self.__title,
+          "formatters": self.__formatters,
+          "objs": [obj for index, obj in sorted]
+        })
+    return str(t)
+
+class SizeTableStat(TableStat):
+  def __init__(self, title):
+    TableStat.__init__(
+        self,
+        "%s top messages by size" % title,
+        lambda m: m, # identity mapping function
+        lambda m: m.size,  # use size as index
+        [SubjectSenderFormatter(), SizeFormatter()])
+
 class StatCollection(Stat):
   def __init__(self, title):
     Stat.__init__(self)

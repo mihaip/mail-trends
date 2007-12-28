@@ -1,0 +1,45 @@
+<div class="stat table-stat-container" id="$id">
+  <h3>
+    <select onchange="toggleTableStatTop(this)">
+      <option value="top10">Top 10</option>
+      <option value="top20">Top 20</option>
+      <option value="top40">Top 40</option>
+    </select>
+    
+    $title
+  </h3>
+  
+  <table class="table-stat top10">
+    <thead>
+      <tr>
+        #for $formatter in $formatters
+          <th class="$formatter.css_class">
+            $formatter.header
+          </th>
+        #end for
+      </tr>
+    </thead>
+    
+    <tbody>
+      #for $i in range(0, len($objs))
+
+        #if $i >= 20
+          #set $top_class = "top40"
+        #else if $i >= 10
+          #set $top_class = "top20"
+        #else
+          #set $top_class = "top10"
+        #end if
+        
+        <tr class="$top_class">
+          #for $formatter in $formatters
+            <td class="$formatter.css_class">
+              $formatter.Format($objs[$i])
+            </td>
+          #end for
+        </tr>
+      #end for
+    </tbody>
+  </table>
+
+</div>

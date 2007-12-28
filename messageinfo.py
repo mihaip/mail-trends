@@ -38,7 +38,7 @@ class MessageInfo(object):
           MessageInfo.__oldestMessageSec = self.__date_sec
       
     elif name == "RFC822.HEADER": 
-        self.__headers = email.message_from_string(value)
+        self.headers = email.message_from_string(value)
     else: raise AssertionError("unknown field: %s" % name)
 
   def GetMessageId(self):
@@ -65,4 +65,4 @@ class MessageInfo(object):
 
   def __str__(self):
     return "%s (size: %d, date: %s)" % (
-        self.__headers["subject"], self.size, self.__date_string)
+        self.headers["subject"], self.size, self.__date_string)

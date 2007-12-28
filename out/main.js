@@ -15,3 +15,19 @@ function toggleStatCollectionSelection(selectNode) {
     }
   });
 }
+
+function toggleTableStatTop(selectNode) {
+  var top = _(selectNode).val();
+  var statNode = selectNode.parentNode;
+  
+  while (!_(statNode).hasClass("stat")) {
+    statNode = statNode.parentNode;
+  }
+  
+  var tableNode = _("table.table-stat", statNode).get(0);
+  
+  _(tableNode).removeClass("top10");
+  _(tableNode).removeClass("top20");
+  _(tableNode).removeClass("top40");
+  _(tableNode).addClass(top);
+}
