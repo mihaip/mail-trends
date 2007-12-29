@@ -1,3 +1,4 @@
+import email
 import calendar
 import heapq
 import time
@@ -259,13 +260,39 @@ class SizeFormatter(object):
     return _GetDisplaySize(message_info.size)
 
 class SubjectSenderFormatter(object):
+  _NAME_CACHE = {}
+
   def __init__(self):
     self.header = "Message"
     self.css_class = "message"
   
   def Format(self, message_info):
-    return "<b>%s</b> from <i>%s</i>" % (
-        message_info.headers["subject"], message_info.headers["from"])
+    name, address = email.utils.parseaddr(message_info.headers["from"])
+    
+    cache = SubjectSenderFormatter._NAME_CACHE
+    
+    if address in cache:
+      if not name or len(cache[address]) > len(name):
+        name = cache[address]
+    
+    if name:
+      cache[address] = name
+    else:
+      name = address
+      
+    full_subject = subject = message_info.headers["subject"]
+    if len(subject) > 50:
+      subject = subject[0:50] + "..."
+
+    t = Template(
+        file="templates/subject-sender-formatter.tmpl",
+        searchList = {
+          "subject": subject,
+          "full_subject": full_subject,
+          "address": address,
+          "name": name,
+        });
+    return str(t)    
 
 _SizeHeapMap = lambda m: m
 _SizeHeapIndex = lambda m: m.size
