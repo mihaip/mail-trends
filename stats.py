@@ -333,7 +333,7 @@ class SenderNameFormatter(object):
     self.css_class = "sender"
 
   def Format(self, sender):
-    address, name, count = sender
+    address, name, count, bytes = sender
     
     t = Template(
         file="templates/sender-formatter.tmpl",
@@ -346,22 +346,33 @@ class SenderNameFormatter(object):
 class SenderCountFormatter(object):
   def __init__(self):
     self.header = "Count"
-    self.css_class = "sender-count"
+    self.css_class = "count"
 
   def Format(self, sender):
-    address, name, count = sender
+    address, name, count, bytes = sender
     
     return str(count)
+    
+class SenderBytesFormatter(object):
+  def __init__(self):
+    self.header = "Total Size"
+    self.css_class = "size"
+  
+  def Format(self, sender):
+    address, name, count, bytes = sender
+
+    return _GetDisplaySize(bytes)    
 
 class SenderTableStat(TableStat):
   def __init__(self, title):
     TableStat.__init__(
         self,
         "%s top senders" % title,
-        [SenderNameFormatter(), SenderCountFormatter()])
+        [SenderNameFormatter(), SenderCountFormatter(), SenderBytesFormatter()])
   
   def _GetTableData(self, message_infos):
     sender_counts = {}
+    sender_bytes = {}
     sender_names = {}
     
     for message_info in message_infos:
@@ -370,17 +381,23 @@ class SenderTableStat(TableStat):
       if not address: continue
       
       sender_counts[address] = sender_counts.get(address, 0) + 1
+      sender_bytes[address] = sender_bytes.get(address, 0) + message_info.size
       sender_names[address] = name
       
     return [
-      (sys.maxint - count, sender_address, sender_names[sender_address]) 
-      for sender_address, count in sender_counts.items()
+      (
+        sys.maxint - count, 
+        address, 
+        sender_names[address],
+        sender_bytes[address]
+      ) 
+      for address, count in sender_counts.items()
     ]
 
   def _GetDisplayData(self, data):
     return [
-      (address, name, sys.maxint - inverse_count) 
-      for inverse_count, address, name in data
+      (address, name, sys.maxint - inverse_count, bytes) 
+      for inverse_count, address, name, bytes in data
    ]
 
 class StatCollection(Stat):

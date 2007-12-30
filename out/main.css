@@ -50,17 +50,15 @@ h3 {
 .table-stat th {
   border-bottom: solid 2px #666;
   background: #eee;
+  text-align: left;  
 }
 
 .table-stat td {
   border-top: solid 1px #eee;
 }
 
-.table-stat th.message {
-  text-align: left;
-}
-
-.table-stat td.size {
+.table-stat th.size, .table-stat td.size,
+.table-stat th.count, .table-stat td.count {
   text-align: right;
 }
 
