@@ -1,6 +1,7 @@
 import email
 import calendar
 import heapq
+import sys
 import time
 
 from Cheetah.Template import Template
@@ -41,7 +42,7 @@ class Stat(object):
   def __init__(self):
     self.id = "stat-%d" % Stat._IdIndex
     Stat._IdIndex += 1
-
+  
 class ChartStat(Stat):
   def __init__(self):
     Stat.__init__(self)
@@ -84,16 +85,17 @@ class BucketStat(ChartStat):
     self.__width = width
     self.__height = height
   
-  def ProcessMessageInfo(self, message_info):
-    bucket = self._GetBucket(message_info)
-    
-    if bucket is None: return
-    
-    self.__buckets[bucket] += 1
-    
-    v = self.__buckets[bucket]
-    if v > self.__max:
-      self.__max = v
+  def ProcessMessageInfos(self, message_infos):
+    for message_info in message_infos:
+      bucket = self._GetBucket(message_info)
+      
+      if bucket is None: continue
+      
+      self.__buckets[bucket] += 1
+      
+      v = self.__buckets[bucket]
+      if v > self.__max:
+        self.__max = v
    
   def GetHtml(self):
     max = self._GetRescaledMax(self.__max)
@@ -260,25 +262,12 @@ class SizeFormatter(object):
     return _GetDisplaySize(message_info.size)
 
 class SubjectSenderFormatter(object):
-  _NAME_CACHE = {}
-
   def __init__(self):
     self.header = "Message"
     self.css_class = "message"
   
   def Format(self, message_info):
-    name, address = email.utils.parseaddr(message_info.headers["from"])
-    
-    cache = SubjectSenderFormatter._NAME_CACHE
-    
-    if address in cache:
-      if not name or len(cache[address]) > len(name):
-        name = cache[address]
-    
-    if name:
-      cache[address] = name
-    else:
-      name = address
+    name, address = message_info.GetSender()
       
     full_subject = subject = message_info.headers["subject"]
     if len(subject) > 50:
@@ -294,43 +283,34 @@ class SubjectSenderFormatter(object):
         });
     return str(t)    
 
-_SizeHeapMap = lambda m: m
-_SizeHeapIndex = lambda m: m.size
-
 class TableStat(Stat):
   _TABLE_SIZE = 40
   
-  def __init__(self, title, map_func, index_func, formatters):
+  def __init__(self, title, formatters):
     Stat.__init__(self)
     self.__title = title
-    self.__heap = []
-    self.__map_func = map_func
-    self.__index_func = index_func
+    
     self.__formatters = formatters
 
-  def ProcessMessageInfo(self, message_info):
-    obj = self.__map_func(message_info)
-    index = self.__index_func(obj)
+  def ProcessMessageInfos(self, message_infos):
+    data = self._GetTableData(message_infos)
+  
+    heapq.heapify(data)
     
-    pair = [index, obj]
-    if len(self.__heap) < TableStat._TABLE_SIZE:
-      heapq.heappush(self.__heap, pair)
-    else:
-      min_pair = self.__heap[0]
-      if pair[0] > min_pair[0]:
-        heapq.heapreplace(self.__heap, pair)
+    table_data = []
+    for i in range(0, min(len(data), TableStat._TABLE_SIZE)):
+      table_data.append(heapq.heappop(data))
+    
+    self.__display_data = self._GetDisplayData(table_data)
 
   def GetHtml(self):
-    sorted = self.__heap
-    sorted.sort(reverse=True)
-  
     t = Template(
         file="templates/table-stat.tmpl",
         searchList = {
           "id": self.id,
           "title": self.__title,
           "formatters": self.__formatters,
-          "objs": [obj for index, obj in sorted]
+          "objs": self.__display_data
         })
     return str(t)
 
@@ -339,9 +319,69 @@ class SizeTableStat(TableStat):
     TableStat.__init__(
         self,
         "%s top messages by size" % title,
-        lambda m: m, # identity mapping function
-        lambda m: m.size,  # use size as index
         [SubjectSenderFormatter(), SizeFormatter()])
+
+  def _GetTableData(self, message_infos):
+    return [(sys.maxint - m.size, m) for m in message_infos]
+  
+  def _GetDisplayData(self, data):
+    return [d[1] for d in data]
+
+class SenderNameFormatter(object):
+  def __init__(self):
+    self.header = "Sender"
+    self.css_class = "sender"
+
+  def Format(self, sender):
+    address, name, count = sender
+    
+    t = Template(
+        file="templates/sender-formatter.tmpl",
+        searchList = {
+          "address": address,
+          "name": name,
+        });
+    return str(t)    
+    
+class SenderCountFormatter(object):
+  def __init__(self):
+    self.header = "Count"
+    self.css_class = "sender-count"
+
+  def Format(self, sender):
+    address, name, count = sender
+    
+    return str(count)
+
+class SenderTableStat(TableStat):
+  def __init__(self, title):
+    TableStat.__init__(
+        self,
+        "%s top senders" % title,
+        [SenderNameFormatter(), SenderCountFormatter()])
+  
+  def _GetTableData(self, message_infos):
+    sender_counts = {}
+    sender_names = {}
+    
+    for message_info in message_infos:
+      name, address = message_info.GetSender()
+      
+      if not address: continue
+      
+      sender_counts[address] = sender_counts.get(address, 0) + 1
+      sender_names[address] = name
+      
+    return [
+      (sys.maxint - count, sender_address, sender_names[sender_address]) 
+      for sender_address, count in sender_counts.items()
+    ]
+
+  def _GetDisplayData(self, data):
+    return [
+      (address, name, sys.maxint - inverse_count) 
+      for inverse_count, address, name in data
+   ]
 
 class StatCollection(Stat):
   def __init__(self, title):
@@ -349,10 +389,10 @@ class StatCollection(Stat):
     self.title = title
     self.__stat_refs = []
     
-  def ProcessMessageInfo(self, message_info):
+  def ProcessMessageInfos(self, message_infos):
     for stat_ref in self.__stat_refs:
-      stat_ref.stat.ProcessMessageInfo(message_info)
-
+      stat_ref.stat.ProcessMessageInfos(message_infos)
+      
   def _AddStatRef(self, stat, title):
     self.__stat_refs.append(StatRef(stat, title))
     
@@ -389,10 +429,10 @@ class StatGroup(Stat):
     Stat.__init__(self)
     self.__stats = args
   
-  def ProcessMessageInfo(self, message_info):
+  def ProcessMessageInfos(self, message_infos):
     for stat in self.__stats:
-      stat.ProcessMessageInfo(message_info)
-  
+      stat.ProcessMessageInfos(message_infos)
+
   def GetHtml(self):
     t = Template(
         file="templates/stat-group.tmpl", 
@@ -415,8 +455,8 @@ class TitleStat(Stat):
     
     self.__message_count = 0
   
-  def ProcessMessageInfo(self, message_info):
-    self.__message_count += 1
+  def ProcessMessageInfos(self, message_infos):
+    self.__message_count = len(message_infos)
   
   def GetHtml(self):
     t = Template(

@@ -78,6 +78,7 @@ def InitStats(date_range):
       stats.SizeBucketStat("All Mail"),
       stats.SizeTableStat("All Mail"),
     ),
+    stats.SenderTableStat("All Mail")
   ]
   
   return s
@@ -94,14 +95,8 @@ message_infos = GetMessageInfos(opts)
 stats = InitStats(messageinfo.MessageInfo.GetDateRange())
 
 logging.info("Generating stats")
-counter = 0
-for message_info in message_infos:
-  for stat in stats:
-    stat.ProcessMessageInfo(message_info)
-
-  counter += 1
-  if counter % 1000 == 0:
-    logging.info("  Processed %d/%d messages" % (counter, len(message_infos)))
+for stat in stats:
+  stat.ProcessMessageInfos(message_infos)
 
 logging.info("Outputting HTML")
 
