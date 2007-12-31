@@ -504,6 +504,39 @@ class StatColumnGroup(StatGroup):
         searchList = {"stats": self._stats})
     return str(t)
     
+class StatTabGroup(StatGroup):
+  def __init__(self, *tabs):
+    StatGroup.__init__(self)
+    
+    self.__tabs = []
+    for tab in tabs:
+      title = tab[0]
+      stats = tab[1:]
+      
+      for stat in stats:
+        self._AddStat(stat)
+      
+      self.__tabs.append(StatTab(title, stats))
+  
+  def GetHtml(self):
+    t = Template(
+        file="templates/stat-tab-group.tmpl",
+        searchList = {
+          "id": self.id,
+          "tabs": self.__tabs,
+        })
+    return str(t)    
+
+class StatTab(object):
+  _IdIndex = 0
+  
+  def __init__(self, title, stats):
+    self.title = title
+    self.stats = stats
+    
+    self.id = "tab-%d" % StatTab._IdIndex
+    StatTab._IdIndex += 1
+
 class TitleStat(Stat):
   _TIME_FORMAT = "%B %d %Y"
   

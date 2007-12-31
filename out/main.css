@@ -67,3 +67,35 @@ table.top10 tr.top40,
 table.top20 tr.top40 {
   display: none;
 }
+
+.stat-tabs-titles {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  list-style-type: none;
+  margin-bottom: -1px;
+}
+
+.stat-tab-title {
+  float: left;
+  color: #00c;
+  font-size: 110%;
+  border: solid 1px #ccc;
+  background: #eee;
+  padding: 2px .3em;
+  margin-left: .3em;
+  cursor: pointer;
+}
+
+.stat-tab-title.selected {
+  font-weight: bold;  
+  color: #000;
+  background: #fff;
+  border-bottom-color: #fff;
+  cursor: default;
+}
+
+.stat-tab-pane {
+  border: solid 1px #ccc;
+  padding: 1em;
+}

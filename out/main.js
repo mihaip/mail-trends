@@ -31,3 +31,19 @@ function toggleTableStatTop(selectNode) {
   _(tableNode).removeClass("top40");
   _(tableNode).addClass(top);
 }
+
+function toggleTabStat(idPrefix) {
+  var title = _("#" + idPrefix + "-title");
+  var titleNode = title.get(0);
+  
+  var tabNode = titleNode.parentNode;  
+  while (!_(tabNode).hasClass("stat-tabs")) {
+    tabNode = tabNode.parentNode;
+  }
+  
+  _("li.stat-tab-title", tabNode).removeClass("selected");
+  title.addClass("selected");
+  
+  _(".stat-tab-pane", tabNode).addClass("hidden");
+  _("#" + idPrefix + "-pane").removeClass("hidden");
+}
