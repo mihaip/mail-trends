@@ -51,6 +51,7 @@ h3 {
   border-bottom: solid 2px #666;
   background: #eee;
   text-align: left;  
+  white-space: nowrap;
 }
 
 .table-stat td {

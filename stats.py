@@ -327,121 +327,115 @@ class SizeTableStat(TableStat):
   def _GetDisplayData(self, data):
     return [d[1] for d in data]
 
-class SenderNameFormatter(object):
-  def __init__(self):
-    self.header = "Sender"
-    self.css_class = "sender"
+class AddressNameFormatter(object):
+  def __init__(self, header, css_class):
+    self.header = header
+    self.css_class = css_class
 
-  def Format(self, sender):
-    address, name, count, bytes = sender
+  def Format(self, data):
+    address, name, count, bytes = data
     
     t = Template(
-        file="templates/sender-formatter.tmpl",
+        file="templates/address-formatter.tmpl",
         searchList = {
           "address": address,
           "name": name,
         });
     return str(t)    
     
-class SenderCountFormatter(object):
+class AddressCountFormatter(object):
   def __init__(self):
     self.header = "Msg. Count"
     self.css_class = "count"
 
-  def Format(self, sender):
-    address, name, count, bytes = sender
+  def Format(self, data):
+    address, name, count, bytes = data
     
     return str(count)
     
-class SenderBytesFormatter(object):
+class AddressBytesFormatter(object):
   def __init__(self):
     self.header = "Total Size"
     self.css_class = "size"
   
-  def Format(self, sender):
-    address, name, count, bytes = sender
+  def Format(self, data):
+    address, name, count, bytes = data
 
     return _GetDisplaySize(bytes)    
 
-class SenderTableStat(TableStat):
-  def __init__(self, title):
+class UniqueAddressTableStat(TableStat):
+  def __init__(self, title, column_title, column_css_class):
     TableStat.__init__(
-        self,
-        "%s top senders" % title,
-        [SenderNameFormatter(), SenderCountFormatter(), SenderBytesFormatter()])
+      self,
+      title,
+      [
+        AddressNameFormatter(column_title, column_css_class),
+        AddressCountFormatter(),
+        AddressBytesFormatter(),
+      ])
   
   def _GetTableData(self, message_infos):
-    sender_counts = {}
-    sender_bytes = {}
-    sender_names = {}
+    address_counts = {}
+    address_bytes = {}
+    address_names = {}
     
     for message_info in message_infos:
-      name, address = message_info.GetSender()
-      
-      if not address: continue
-      
-      sender_counts[address] = sender_counts.get(address, 0) + 1
-      sender_bytes[address] = sender_bytes.get(address, 0) + message_info.size
-      sender_names[address] = name
+      for name, address in self._GetAddresses(message_info):
+        if not address: continue
+        
+        address_counts[address] = address_counts.get(address, 0) + 1
+        address_bytes[address] = \
+            address_bytes.get(address, 0) + message_info.size
+        address_names[address] = name
       
     return [
       (
         sys.maxint - count, 
         address, 
-        sender_names[address],
-        sender_bytes[address]
+        address_names[address],
+        address_bytes[address]
       ) 
-      for address, count in sender_counts.items()
+      for address, count in address_counts.items()
     ]
-
+  
   def _GetDisplayData(self, data):
     return [
       (address, name, sys.maxint - inverse_count, bytes) 
       for inverse_count, address, name, bytes in data
    ]
-
-class ListNameFormatter(SenderNameFormatter):
-  def __init__(self):
-    SenderNameFormatter.__init__(self)
-    self.header = "List"
-    self.css_class = "list"
-
-class ListIdTableStat(TableStat):
+   
+class SenderTableStat(UniqueAddressTableStat):
   def __init__(self, title):
-    TableStat.__init__(
+    UniqueAddressTableStat.__init__(
+        self,
+        "%s top senders" % title,
+        "Sender",
+        "sender")
+  
+  def _GetAddresses(self, message_info):
+    return [message_info.GetSender()]
+
+class ListIdTableStat(UniqueAddressTableStat):
+  def __init__(self, title):
+    UniqueAddressTableStat.__init__(
         self,
         "%s top lists" % title,
-        [ListNameFormatter(), SenderCountFormatter(), SenderBytesFormatter()])
+        "List",
+        "list")
   
-  def _GetTableData(self, message_infos):
-    list_counts = {}
-    list_bytes = {}
-    list_names = {}
-    
-    for message_info in message_infos:
-      name, address = message_info.GetListId()
-      
-      if not address: continue
-      
-      list_counts[address] = list_counts.get(address, 0) + 1
-      list_bytes[address] = list_bytes.get(address, 0) + message_info.size
-      list_names[address] = name
-      
-    return [
-      (
-        sys.maxint - count, 
-        address, 
-        list_names[address],
-        list_bytes[address]
-      ) 
-      for address, count in list_counts.items()
-    ]
-    
-  def _GetDisplayData(self, data):
-    return [
-      (address, name, sys.maxint - inverse_count, bytes) 
-      for inverse_count, address, name, bytes in data
-   ]    
+  def _GetAddresses(self, message_info):
+    return [message_info.GetListId()]
+
+class RecipientTableStat(UniqueAddressTableStat):
+  def __init__(self, title):
+    UniqueAddressTableStat.__init__(
+      self,
+      "%s top recipients" % title,
+      "Recipient",
+      "recipient")
+  
+  def _GetAddresses(self, message_info):
+    return message_info.GetRecipients()
 
 class StatGroup(Stat):
   def __init__(self):

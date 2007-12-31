@@ -86,11 +86,12 @@ def InitStats(date_range):
         ),
       ),
       (
-        "Senders and Lists",
+        "Pople and Lists",
         stats.StatColumnGroup(
           stats.SenderTableStat("All Mail"),
-          stats.ListIdTableStat("All Mail"),
-        )
+          stats.RecipientTableStat("All Mail"),
+        ),
+        stats.ListIdTableStat("All Mail"),
       )
     )
   ]

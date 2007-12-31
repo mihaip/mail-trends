@@ -64,6 +64,24 @@ class MessageInfo(object):
 
   def GetListId(self):
     return self._GetNameAddress("list-id")
+    
+  def GetRecipients(self):
+    tos = self.headers.get_all('to', [])
+    ccs = self.headers.get_all('cc', [])
+    resent_tos = self.headers.get_all('resent-to', [])
+    resent_ccs = self.headers.get_all('resent-cc', [])
+    all_recipients = email.utils.getaddresses(
+        tos + ccs + resent_tos + resent_ccs)
+    
+    # Cleaned up and uniquefied
+    recipients_map = {}
+    
+    for name, address in all_recipients:
+      if address:
+        name, address = self._GetCleanedUpNameAddress(name, address)
+        recipients_map[address] = name
+    
+    return [(name, address) for address, name in recipients_map.items()]
 
   def _GetNameAddress(self, header):
     if not header in self.headers:
@@ -76,23 +94,28 @@ class MessageInfo(object):
       name, address = email.utils.parseaddr(header_value)
       
       if address:
-        address = address.lower()
+        name, address = self._GetCleanedUpNameAddress(name, address)
         
-        cache = MessageInfo._NAME_CACHE
-        
-        if address in cache:
-          # Assume longer names are better, use those
-          if not name or len(cache[address]) > len(name):
-            name = cache[address]
-        
-        if name:
-          cache[address] = name
-        else:
-          name = address
-      
       self.__parsed_name_address[header] = name, address
       
     return self.__parsed_name_address[header]
+
+  def _GetCleanedUpNameAddress(self, name, address):
+    address = address.lower()
+    
+    cache = MessageInfo._NAME_CACHE
+    
+    if address in cache:
+      # Assume longer names are better, use those
+      if not name or len(cache[address]) > len(name):
+        name = cache[address]
+
+    if name:
+      cache[address] = name
+    else:
+      name = address
+    
+    return name, address
 
   def GetDateRange():
     return [MessageInfo.__oldestMessageSec, MessageInfo.__newestMessageSec]
