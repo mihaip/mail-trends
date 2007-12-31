@@ -65,23 +65,23 @@ def GetMessageInfos(opts):
 def InitStats(date_range):
   s = [
     stats.TitleStat(date_range, "All Mail"),
-    stats.StatGroup(
+    stats.StatColumnGroup(
       stats.DayOfWeekStat("All Mail"),
       stats.TimeOfDayStat("All Mail"),
       stats.YearStat(date_range, "All Mail"),
     ),
-    stats.StatGroup(
+    stats.StatColumnGroup(
       stats.MonthStatCollection(date_range, "All Mail"),
       stats.DayStatCollection(date_range, "All Mail"),
     ),
-    stats.StatGroup(
+    stats.StatColumnGroup(
       stats.SizeBucketStat("All Mail"),
       stats.SizeTableStat("All Mail"),
     ),
-    stats.StatGroup(
+    stats.StatColumnGroup(
       stats.SenderTableStat("All Mail"),
       stats.ListIdTableStat("All Mail"),
-    )      
+    )
   ]
   
   return s

@@ -443,29 +443,37 @@ class ListIdTableStat(TableStat):
       for inverse_count, address, name, bytes in data
    ]    
 
-class StatCollection(Stat):
-  def __init__(self, title):
+class StatGroup(Stat):
+  def __init__(self):
     Stat.__init__(self)
-    self.title = title
-    self.__stat_refs = []
-    
+    self._stats = []
+  
+  def _AddStat(self, stat):
+    self._stats.append(stat)
+  
   def ProcessMessageInfos(self, message_infos):
-    for stat_ref in self.__stat_refs:
-      stat_ref.stat.ProcessMessageInfos(message_infos)
-      
+    for stat in self._stats:
+      stat.ProcessMessageInfos(message_infos)  
+
+class StatCollection(StatGroup):
+  def __init__(self, title):
+    StatGroup.__init__(self)
+    self.title = title
+    self.__stat_titles = []
+    
   def _AddStatRef(self, stat, title):
-    self.__stat_refs.append(StatRef(stat, title))
+    self._AddStat(stat)
+    self.__stat_titles.append(title)
     
   def GetHtml(self):
     t = Template(
         file="templates/stat-collection.tmpl", 
-        searchList = {"collection": self, "stat_refs": self.__stat_refs})
+        searchList = {
+          "collection": self, 
+          "stats": self._stats,
+          "titles": self.__stat_titles
+        })
     return str(t)
-
-class StatRef(object):
-  def __init__(self, stat, title):
-    self.stat = stat
-    self.title = title
 
 class MonthStatCollection(StatCollection):
   def __init__(self, date_range, title):
@@ -484,19 +492,16 @@ class DayStatCollection(StatCollection):
             DayStat(year, month), 
             "%s %s" % (year, _MONTH_NAMES[month - 1]))
             
-class StatGroup(Stat):
+class StatColumnGroup(StatGroup):
   def __init__(self, *args):
-    Stat.__init__(self)
-    self.__stats = args
-  
-  def ProcessMessageInfos(self, message_infos):
-    for stat in self.__stats:
-      stat.ProcessMessageInfos(message_infos)
+    StatGroup.__init__(self)
+    for stat in args:
+      self._AddStat(stat)
 
   def GetHtml(self):
     t = Template(
-        file="templates/stat-group.tmpl", 
-        searchList = {"stats": self.__stats})
+        file="templates/stat-column-group.tmpl", 
+        searchList = {"stats": self._stats})
     return str(t)
     
 class TitleStat(Stat):
