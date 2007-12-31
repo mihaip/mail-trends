@@ -22,8 +22,7 @@ class MessageInfo(object):
     self.__message_id = None
     self.__mailboxes = []
     
-    self.__sender_name = None
-    self.__sender_address = None
+    self.__parsed_name_address = {}
   
   def PopulateField(self, name, value):
     if name == "UID": self.__uid = value
@@ -61,25 +60,39 @@ class MessageInfo(object):
     return self.__date_tuple
   
   def GetSender(self):
-    if not self.__sender_address:
-      name, address = email.utils.parseaddr(self.headers["from"])
+    return self._GetNameAddress("from")
+
+  def GetListId(self):
+    return self._GetNameAddress("list-id")
+
+  def _GetNameAddress(self, header):
+    if not header in self.headers:
+      return None, None
       
-      cache = MessageInfo._NAME_CACHE
+    if header not in self.__parsed_name_address:
+      header_value = self.headers[header]
+      header_value = header_value.replace("\n", " ")
+      header_value = header_value.replace("\r", " ")
+      name, address = email.utils.parseaddr(header_value)
       
-      if address in cache:
-        # Assume longer names are better, use those
-        if not name or len(cache[address]) > len(name):
-          name = cache[address]
+      if address:
+        address = address.lower()
+        
+        cache = MessageInfo._NAME_CACHE
+        
+        if address in cache:
+          # Assume longer names are better, use those
+          if not name or len(cache[address]) > len(name):
+            name = cache[address]
+        
+        if name:
+          cache[address] = name
+        else:
+          name = address
       
-      if name:
-        cache[address] = name
-      else:
-        name = address
+      self.__parsed_name_address[header] = name, address
       
-      self.__sender_name = name
-      self.__sender_address = address
-    
-    return self.__sender_name, self.__sender_address
+    return self.__parsed_name_address[header]
 
   def GetDateRange():
     return [MessageInfo.__oldestMessageSec, MessageInfo.__newestMessageSec]

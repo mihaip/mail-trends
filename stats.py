@@ -345,7 +345,7 @@ class SenderNameFormatter(object):
     
 class SenderCountFormatter(object):
   def __init__(self):
-    self.header = "Count"
+    self.header = "Msg. Count"
     self.css_class = "count"
 
   def Format(self, sender):
@@ -399,6 +399,49 @@ class SenderTableStat(TableStat):
       (address, name, sys.maxint - inverse_count, bytes) 
       for inverse_count, address, name, bytes in data
    ]
+
+class ListNameFormatter(SenderNameFormatter):
+  def __init__(self):
+    SenderNameFormatter.__init__(self)
+    self.header = "List"
+    self.css_class = "list"
+
+class ListIdTableStat(TableStat):
+  def __init__(self, title):
+    TableStat.__init__(
+        self,
+        "%s top lists" % title,
+        [ListNameFormatter(), SenderCountFormatter(), SenderBytesFormatter()])
+  
+  def _GetTableData(self, message_infos):
+    list_counts = {}
+    list_bytes = {}
+    list_names = {}
+    
+    for message_info in message_infos:
+      name, address = message_info.GetListId()
+      
+      if not address: continue
+      
+      list_counts[address] = list_counts.get(address, 0) + 1
+      list_bytes[address] = list_bytes.get(address, 0) + message_info.size
+      list_names[address] = name
+      
+    return [
+      (
+        sys.maxint - count, 
+        address, 
+        list_names[address],
+        list_bytes[address]
+      ) 
+      for address, count in list_counts.items()
+    ]
+    
+  def _GetDisplayData(self, data):
+    return [
+      (address, name, sys.maxint - inverse_count, bytes) 
+      for inverse_count, address, name, bytes in data
+   ]    
 
 class StatCollection(Stat):
   def __init__(self, title):

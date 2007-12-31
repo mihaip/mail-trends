@@ -78,7 +78,10 @@ def InitStats(date_range):
       stats.SizeBucketStat("All Mail"),
       stats.SizeTableStat("All Mail"),
     ),
-    stats.SenderTableStat("All Mail")
+    stats.StatGroup(
+      stats.SenderTableStat("All Mail"),
+      stats.ListIdTableStat("All Mail"),
+    )      
   ]
   
   return s
