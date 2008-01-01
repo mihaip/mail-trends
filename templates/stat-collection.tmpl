@@ -3,15 +3,21 @@
     $collection.title
     <select onchange="toggleStatCollectionSelection(this)">
     #for $i in range(0, len($stats))
-      <option value="$stats[$i].id">
-        $titles[$i]
-      </option>
+      #if $stats[$i]
+        <option value="$stats[$i].id">
+          $titles[$i]
+        </option>      
+      #else
+        <option disabled>&nbsp;</option>      
+      #end if
     #end for
     </select>
   </h3>
   
   #for $stat in $stats
-    $stat.GetHtml
+    #if $stat:
+      $stat.GetHtml
+    #end if
   #end for
 </div>
 

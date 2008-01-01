@@ -447,7 +447,8 @@ class StatGroup(Stat):
   
   def ProcessMessageInfos(self, message_infos):
     for stat in self._stats:
-      stat.ProcessMessageInfos(message_infos)  
+      if stat:
+        stat.ProcessMessageInfos(message_infos)  
 
 class StatCollection(StatGroup):
   def __init__(self, title):
@@ -458,7 +459,11 @@ class StatCollection(StatGroup):
   def _AddStatRef(self, stat, title):
     self._AddStat(stat)
     self.__stat_titles.append(title)
-    
+  
+  def _AddStatDivider(self):
+    self._AddStat(None)
+    self.__stat_titles.append(None)
+  
   def GetHtml(self):
     t = Template(
         file="templates/stat-collection.tmpl", 
@@ -472,7 +477,7 @@ class StatCollection(StatGroup):
 class MonthStatCollection(StatCollection):
   def __init__(self, date_range, title):
     StatCollection.__init__(self, "%s by month for " % title)
-    
+
     for year in _GetYearRange(date_range):
       self._AddStatRef(MonthStat(year), "%s" % year)
       
@@ -480,8 +485,19 @@ class DayStatCollection(StatCollection):
   def __init__(self, date_range, title):
     StatCollection.__init__(self, "%s by month for " % title)
     
-    for year in _GetYearRange(date_range):
+    start, end = [time.localtime(d) for d in date_range]
+    
+    for year in range(start.tm_year, end.tm_year + 1):
       for month in range(1, 13):
+        # skip over months before our range        
+        if year == start.tm_year and month < start.tm_mon: continue
+        
+        # and those after
+        if year == end.tm_year and month > end.tm_mon: continue
+        
+        # dividers between years
+        if month == 1 and year != start.tm_year: self._AddStatDivider()
+        
         self._AddStatRef(
             DayStat(year, month), 
             "%s %s" % (year, _MONTH_NAMES[month - 1]))
