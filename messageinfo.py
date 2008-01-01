@@ -106,12 +106,17 @@ class MessageInfo(object):
     cache = MessageInfo._NAME_CACHE
     
     if address in cache:
-      # Assume longer names are better, use those
-      if not name or len(cache[address]) > len(name):
-        name = cache[address]
-
-    if name:
-      cache[address] = name
+      if name:
+        cache[address][name] = cache[address].get(name, 0) + 1
+      
+      # TODO(mihaip): cache max and compare with updated key and re-compute if
+      # necessary, instead of re-calculating every time
+      popular_name_pair = \
+          max(cache[address].items(), key=lambda pair: pair[1])
+      name = popular_name_pair[0]
+    elif name:
+        cache[address] = {}
+        cache[address][name] = 1
     else:
       name = address
     
