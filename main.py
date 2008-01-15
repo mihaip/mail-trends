@@ -6,6 +6,7 @@ import messageinfo
 import sys
 
 from Cheetah.Template import Template
+import jwzthreading
 
 import mail
 import stats
@@ -62,6 +63,17 @@ def GetMessageInfos(opts):
   
   return message_infos
 
+def ExtractThreads(message_infos):
+  thread_messages = [jwzthreading.make_message(m.headers) for m in message_infos]
+  thread_dict = jwzthreading.thread(thread_messages)
+  
+  containers = []
+  for subject, container in thread_dict.items():
+    container.subject = subject
+    containers.append(container)
+    
+  return containers
+
 def InitStats(date_range):
   s = [
     stats.TitleStat(date_range, "All Mail"),
@@ -86,12 +98,21 @@ def InitStats(date_range):
         ),
       ),
       (
-        "Pople and Lists",
+        "People and Lists",
         stats.StatColumnGroup(
           stats.SenderTableStat("All Mail"),
           stats.RecipientTableStat("All Mail"),
         ),
-        stats.ListIdTableStat("All Mail"),
+        stats.StatColumnGroup(
+          stats.ListIdTableStat("All Mail"),
+        ),
+      ),
+      (
+        "Threads",
+        stats.StatColumnGroup(
+          stats.ThreadSizeBucketStat("All Mail"),
+          stats.ThreadSizeTableStat("All Mail"),
+        ),
       )
     )
   ]
@@ -107,11 +128,13 @@ opts = GetOptsMap()
 
 message_infos = GetMessageInfos(opts)
 
+threads = ExtractThreads(message_infos)
+
 stats = InitStats(messageinfo.MessageInfo.GetDateRange())
 
 logging.info("Generating stats")
 for stat in stats:
-  stat.ProcessMessageInfos(message_infos)
+  stat.ProcessMessageInfos(message_infos, threads)
 
 logging.info("Outputting HTML")
 

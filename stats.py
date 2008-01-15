@@ -84,10 +84,13 @@ class BucketStat(ChartStat):
     self.__title = title
     self.__width = width
     self.__height = height
-  
-  def ProcessMessageInfos(self, message_infos):
-    for message_info in message_infos:
-      bucket = self._GetBucket(message_info)
+ 
+  def _GetBucketCollection(self, message_infos, threads):
+    return message_infos
+ 
+  def ProcessMessageInfos(self, message_infos, threads):
+    for bucket_obj in self._GetBucketCollection(message_infos, threads):
+      bucket = self._GetBucket(bucket_obj)
       
       if bucket is None: continue
       
@@ -253,6 +256,41 @@ class SizeBucketStat(BucketStat):
   def _GetBucketLabels(self):
     return [_GetDisplaySize(s) for s in SizeBucketStat._SIZE_BUCKETS]
 
+class ThreadSizeBucketStat(BucketStat):
+  _SIZE_BUCKETS = [
+    1,
+    5,
+    10,
+    20,
+    30,
+    40,
+    50,
+    100,
+    150,
+    200,
+  ]
+  
+  def __init__(self, title):
+    BucketStat.__init__(
+      self,
+      len(ThreadSizeBucketStat._SIZE_BUCKETS),      
+      "%s thread lengths" % title,
+      500,
+      200)
+      
+  def _GetBucketCollection(self, message_infos, threads):
+    return threads      
+  
+  def _GetBucket(self, thread):
+    size = len(thread)
+    
+    for i in reversed(xrange(0, len(ThreadSizeBucketStat._SIZE_BUCKETS))):
+      if size >= ThreadSizeBucketStat._SIZE_BUCKETS[i]:
+        return i
+
+  def _GetBucketLabels(self):
+    return [str(s) for s in ThreadSizeBucketStat._SIZE_BUCKETS]
+
 class SizeFormatter(object):
   def __init__(self):
     self.header = "Size"
@@ -292,8 +330,8 @@ class TableStat(Stat):
     
     self.__formatters = formatters
 
-  def ProcessMessageInfos(self, message_infos):
-    data = self._GetTableData(message_infos)
+  def ProcessMessageInfos(self, message_infos, threads):
+    data = self._GetTableData(message_infos, threads)
   
     heapq.heapify(data)
     
@@ -321,8 +359,37 @@ class SizeTableStat(TableStat):
         "%s top messages by size" % title,
         [SubjectSenderFormatter(), SizeFormatter()])
 
-  def _GetTableData(self, message_infos):
+  def _GetTableData(self, message_infos, threads):
     return [(sys.maxint - m.size, m) for m in message_infos]
+  
+  def _GetDisplayData(self, data):
+    return [d[1] for d in data]
+
+class ThreadSubjectFormatter(object):
+  def __init__(self):
+    self.header = "Subject"
+    self.css_class = "subject"
+  
+  def Format(self, thread):
+    return thread.subject
+    
+class ThreadSizeFormatter(object):
+  def __init__(self):
+    self.header = "Length"
+    self.css_class = "length"
+  
+  def Format(self, thread):
+    return len(thread)
+
+class ThreadSizeTableStat(TableStat):
+  def __init__(self, title):
+    TableStat.__init__(
+        self,
+        "%s top threads" % title,
+        [ThreadSubjectFormatter(), ThreadSizeFormatter()])
+
+  def _GetTableData(self, message_infos, threads):
+    return [(sys.maxint - len(t), t) for t in threads]
   
   def _GetDisplayData(self, data):
     return [d[1] for d in data]
@@ -374,7 +441,7 @@ class UniqueAddressTableStat(TableStat):
         AddressBytesFormatter(),
       ])
   
-  def _GetTableData(self, message_infos):
+  def _GetTableData(self, message_infos, threads):
     address_counts = {}
     address_bytes = {}
     address_names = {}
@@ -445,10 +512,10 @@ class StatGroup(Stat):
   def _AddStat(self, stat):
     self._stats.append(stat)
   
-  def ProcessMessageInfos(self, message_infos):
+  def ProcessMessageInfos(self, message_infos, threads):
     for stat in self._stats:
       if stat:
-        stat.ProcessMessageInfos(message_infos)  
+        stat.ProcessMessageInfos(message_infos, threads) 
 
 class StatCollection(StatGroup):
   def __init__(self, title):
@@ -563,8 +630,9 @@ class TitleStat(Stat):
     
     self.__message_count = 0
   
-  def ProcessMessageInfos(self, message_infos):
+  def ProcessMessageInfos(self, message_infos, threads):
     self.__message_count = len(message_infos)
+    self.__thread_count = len(threads)
   
   def GetHtml(self):
     t = Template(
@@ -574,5 +642,6 @@ class TitleStat(Stat):
           "start": self.__start,
           "end": self.__end,
           "message_count": self.__message_count,
+          "thread_count": self.__thread_count
         })
     return str(t)

@@ -11,10 +11,13 @@ MAILBOX_GMAIL_PREFIX = "[Gmail]"
 
 class Mail(object):
   def __init__(self, server, use_ssl, username, password, 
-      record=False, replay=False, max_messages=-1):
+      record=False, replay=False, max_messages=-1, random_subset=False):
+    self.__server = server
+    self.__username = username
     self.__record = record
     self.__replay = replay
     self.__max_messages = max_messages
+    self.__random_subset = random_subset
     
     self.__current_mailbox = None
     
@@ -91,11 +94,14 @@ class Mail(object):
     logging.info("  %d messages were listed" % len(message_ids))
 
     if max_fetch != -1 and len(message_ids) > max_fetch:
-      # Pick random sample when there is a max, so that we get more interesting
-      # data. However, use the same seed so that runs will be deterministic
-      # and we can take advantage of record/replay
-      random.seed(len(message_ids))
-      message_ids = random.sample(message_ids, max_fetch)
+      if self.__random_subset:
+        # Pick random sample when there is a max, so that we get more interesting
+        # data. However, use the same seed so that runs will be deterministic
+        # and we can take advantage of record/replay
+        random.seed(len(message_ids))
+        message_ids = random.sample(message_ids, max_fetch)
+      else:
+        message_ids = message_ids[-max_fetch - 1:-1]
     
     message_infos = []
     
@@ -129,8 +135,9 @@ class Mail(object):
 
   def __UidCommand(self, command, *args):
     if self.__record or self.__replay:
-      cache_key = "%s-%s-%s" % (
-          self.__current_mailbox, command, " ".join(args))
+      cache_key = "%s-%s-%s-%s-%s" % (
+          self.__server, self.__username, self.__current_mailbox, 
+          command, " ".join(args))
 
     if self.__replay:    
       cached_response = self.__cache.Get(cache_key)
