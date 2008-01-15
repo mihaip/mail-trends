@@ -73,7 +73,7 @@ def make_message (msg):
     
     m = msgid_pat.search(msg.get("Message-ID", ""))
     if m is None:
-        raise ValueError, "Message does not contain a Message-ID: header"
+        return None
 
     new.message_id = m.group(1)
 
@@ -94,13 +94,15 @@ def make_message (msg):
     return new
 
 class Message (object):
-    __slots__ = ['message', 'message_id', 'references', 'subject']
+    __slots__ = [
+        'message', 'message_id', 'references', 'subject', 'message_info']
     
     def __init__(self, msg=None):
         self.message = msg
         self.message_id = None
         self.references = []
         self.subject = None
+        self.message_info = None
 
     def __repr__ (self):
         return '<%s: %r>' % (self.__class__.__name__, self.message_id)

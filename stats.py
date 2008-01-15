@@ -394,6 +394,68 @@ class ThreadSizeTableStat(TableStat):
   def _GetDisplayData(self, data):
     return [d[1] for d in data]
 
+class ThreadStarterFormatter(object):
+  def __init__(self):
+    self.header = "Starter"
+    self.css_class = "starter"
+    
+  def Format(self, thread_info):
+    t = Template(
+        file="templates/address-formatter.tmpl",
+        searchList = {
+          "address": thread_info["address"],
+          "name": thread_info["name"],
+        });
+    return str(t)
+
+class ThreadStarterSizeFormatter(object):
+  def __init__(self):
+    self.header = "Avg. Thread Length"
+    self.css_class = "length"
+    
+  def Format(self, thread_info):
+    return "%.2f" % (float(thread_info["total_size"])/float(thread_info["count"]))
+
+
+class ThreadStarterTableStat(TableStat):
+  def __init__(self, title):
+    TableStat.__init__(
+      self,
+      "%s top thread starters" % title,
+      [ThreadStarterFormatter(), ThreadStarterSizeFormatter()])
+ 
+  def _GetTableData(self, message_infos, threads):
+    sender_threads = {}
+    
+    for thread in threads:
+      if not thread.message or not thread.message.message_info: continue
+      
+      sender_name, sender_address = thread.message.message_info.GetSender()
+      
+      if sender_address in sender_threads:
+        sender_thread_info = sender_threads[sender_address]
+      else:
+        sender_thread_info = {
+          "address": sender_address,
+          "name": "",
+          "count": 0,
+          "total_size": 0,
+        }
+        sender_threads[sender_address] = sender_thread_info
+          
+      if sender_name:
+        sender_thread_info["name"] = sender_name
+      sender_thread_info["count"] += 1
+      sender_thread_info["total_size"] += len(thread)
+    
+    return [
+      (sys.maxint - i["total_size"]/i["count"], i) \
+          for sender_address, i in sender_threads.items()
+    ]
+   
+  def _GetDisplayData(self, data):
+    return [d[1] for d in data]  
+
 class AddressNameFormatter(object):
   def __init__(self, header, css_class):
     self.header = header

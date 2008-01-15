@@ -64,7 +64,13 @@ def GetMessageInfos(opts):
   return message_infos
 
 def ExtractThreads(message_infos):
-  thread_messages = [jwzthreading.make_message(m.headers) for m in message_infos]
+  thread_messages = []
+  for message_info in message_infos:
+    thread_message = jwzthreading.make_message(message_info.headers)
+    if thread_message:
+      thread_message.message_info = message_info
+      thread_messages.append(thread_message)
+      
   thread_dict = jwzthreading.thread(thread_messages)
   
   containers = []
@@ -113,6 +119,9 @@ def InitStats(date_range):
           stats.ThreadSizeBucketStat("All Mail"),
           stats.ThreadSizeTableStat("All Mail"),
         ),
+        stats.StatColumnGroup(
+          stats.ThreadStarterTableStat("All Mail"),
+        )
       )
     )
   ]
@@ -128,6 +137,7 @@ opts = GetOptsMap()
 
 message_infos = GetMessageInfos(opts)
 
+logging.info("Extracting threads")
 threads = ExtractThreads(message_infos)
 
 stats = InitStats(messageinfo.MessageInfo.GetDateRange())

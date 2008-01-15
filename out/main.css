@@ -59,6 +59,7 @@ h3 {
 }
 
 .table-stat th.size, .table-stat td.size,
+.table-stat th.length, .table-stat td.length,
 .table-stat th.count, .table-stat td.count {
   text-align: right;
 }

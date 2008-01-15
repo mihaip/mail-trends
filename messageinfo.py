@@ -103,6 +103,9 @@ class MessageInfo(object):
   def _GetCleanedUpNameAddress(self, name, address):
     address = address.lower()
     
+    if name == "No Description Available":
+      name = None
+    
     cache = MessageInfo._NAME_CACHE
     
     if address in cache:
