@@ -394,10 +394,10 @@ class ThreadSizeTableStat(TableStat):
   def _GetDisplayData(self, data):
     return [d[1] for d in data]
 
-class ThreadStarterFormatter(object):
-  def __init__(self):
-    self.header = "Starter"
-    self.css_class = "starter"
+class ThreadOriginFormatter(object):
+  def __init__(self, header, css_class):
+    self.header = header
+    self.css_class = css_class
     
   def Format(self, thread_info):
     t = Template(
@@ -408,53 +408,84 @@ class ThreadStarterFormatter(object):
         });
     return str(t)
 
-class ThreadStarterSizeFormatter(object):
+class ThreadOriginSizeFormatter(object):
   def __init__(self):
     self.header = "Avg. Thread Length"
     self.css_class = "length"
     
   def Format(self, thread_info):
-    return "%.2f" % (float(thread_info["total_size"])/float(thread_info["count"]))
+    return "%.2f" % (
+        float(thread_info["total_size"])/float(thread_info["count"]))
 
-
-class ThreadStarterTableStat(TableStat):
-  def __init__(self, title):
+class ThreadOriginTableStat(TableStat):
+  def __init__(self, title, column_header, column_css_class):
     TableStat.__init__(
       self,
-      "%s top thread starters" % title,
-      [ThreadStarterFormatter(), ThreadStarterSizeFormatter()])
+      title,
+      [ThreadOriginFormatter(column_header, column_css_class), 
+          ThreadOriginSizeFormatter()])
  
   def _GetTableData(self, message_infos, threads):
-    sender_threads = {}
+    origin_threads = {}
     
     for thread in threads:
-      if not thread.message or not thread.message.message_info: continue
+      origin = self._GetThreadOrigin(thread)
       
-      sender_name, sender_address = thread.message.message_info.GetSender()
+      if not origin: continue
+
+      origin_name, origin_address = origin
       
-      if sender_address in sender_threads:
-        sender_thread_info = sender_threads[sender_address]
+      if origin_address in origin_threads:
+        origin_thread_info = origin_threads[origin_address]
       else:
-        sender_thread_info = {
-          "address": sender_address,
+        origin_thread_info = {
+          "address": origin_address,
           "name": "",
           "count": 0,
           "total_size": 0,
         }
-        sender_threads[sender_address] = sender_thread_info
+        origin_threads[origin_address] = origin_thread_info
           
-      if sender_name:
-        sender_thread_info["name"] = sender_name
-      sender_thread_info["count"] += 1
-      sender_thread_info["total_size"] += len(thread)
+      if origin_name:
+        origin_thread_info["name"] = origin_name
+      origin_thread_info["count"] += 1
+      origin_thread_info["total_size"] += len(thread)
     
     return [
       (sys.maxint - i["total_size"]/i["count"], i) \
-          for sender_address, i in sender_threads.items()
+          for origin_address, i in origin_threads.items()
     ]
    
   def _GetDisplayData(self, data):
     return [d[1] for d in data]  
+
+class ThreadStarterTableStat(ThreadOriginTableStat):
+  def __init__(self, title):
+    ThreadOriginTableStat.__init__(
+      self,
+      "%s top thread starters" % title,
+      "Starter",
+      "starter")
+  
+  def _GetThreadOrigin(self, thread):
+    if thread.message and thread.message.message_info:
+      return thread.message.message_info.GetSender()
+    else:
+      return None
+
+class ThreadListTableStat(ThreadOriginTableStat):
+  def __init__(self,title):
+    ThreadOriginTableStat.__init__(
+        self,
+        "%s top thread lists" % title,
+        "List",
+        "list")
+  
+  def _GetThreadOrigin(self, thread):
+    if thread.message and thread.message.message_info:
+      return thread.message.message_info.GetListId()
+    else:
+      return None    
 
 class AddressNameFormatter(object):
   def __init__(self, header, css_class):

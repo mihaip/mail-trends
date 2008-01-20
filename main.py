@@ -121,6 +121,7 @@ def InitStats(date_range):
         ),
         stats.StatColumnGroup(
           stats.ThreadStarterTableStat("All Mail"),
+          stats.ThreadListTableStat("All Mail"),
         )
       )
     )
