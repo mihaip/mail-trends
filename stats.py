@@ -137,8 +137,8 @@ class BucketStat(ChartStat):
     return str(t)
 
 class TimeOfDayStat(BucketStat):
-  def __init__(self, title):
-    BucketStat.__init__(self, 24, '%s by time of day' % title, 400, 200)
+  def __init__(self):
+    BucketStat.__init__(self, 24, 'Time of day', 400, 200)
   
   def _GetBucket(self, message_info):
     return message_info.GetDate().tm_hour
@@ -150,8 +150,8 @@ class TimeOfDayStat(BucketStat):
             ' 6 PM', '', '', '', '', '']
 
 class DayOfWeekStat(BucketStat):
-  def __init__(self, title):
-    BucketStat.__init__(self, 7, '%s by day of week' % title, 300, 200)
+  def __init__(self):
+    BucketStat.__init__(self, 7, 'Day of week', 300, 200)
 
   
   def _GetBucket(self, message_info):
@@ -163,13 +163,13 @@ class DayOfWeekStat(BucketStat):
     return ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 class YearStat(BucketStat):
-  def __init__(self, date_range, title):
+  def __init__(self, date_range):
     self.__years = _GetYearRange(date_range)
 
     width = _Y_AXIS_SPACE + 30 * len(self.__years)
     
     BucketStat.__init__(
-        self, len(self.__years), "%s by year" % title, width, 200)
+        self, len(self.__years), "Year", width, 200)
     
   def _GetBucket(self, message_info):
     return message_info.GetDate().tm_year - self.__years[0]
@@ -238,11 +238,11 @@ class SizeBucketStat(BucketStat):
     1 << 23,
   ]
   
-  def __init__(self, title):
+  def __init__(self):
     BucketStat.__init__(
       self,
       len(SizeBucketStat._SIZE_BUCKETS),
-      "%s message sizes" % title,
+      "Message sizes",
       500,
       200)
 
@@ -270,11 +270,11 @@ class ThreadSizeBucketStat(BucketStat):
     200,
   ]
   
-  def __init__(self, title):
+  def __init__(self):
     BucketStat.__init__(
       self,
       len(ThreadSizeBucketStat._SIZE_BUCKETS),      
-      "%s thread lengths" % title,
+      "Thread lengths",
       500,
       200)
       
@@ -353,10 +353,10 @@ class TableStat(Stat):
     return str(t)
 
 class SizeTableStat(TableStat):
-  def __init__(self, title):
+  def __init__(self):
     TableStat.__init__(
         self,
-        "%s top messages by size" % title,
+        "Top messages by size",
         [SubjectSenderFormatter(), SizeFormatter()])
 
   def _GetTableData(self, message_infos, threads):
@@ -382,10 +382,10 @@ class ThreadSizeFormatter(object):
     return len(thread)
 
 class ThreadSizeTableStat(TableStat):
-  def __init__(self, title):
+  def __init__(self):
     TableStat.__init__(
         self,
-        "%s top threads" % title,
+        "Top threads",
         [ThreadSubjectFormatter(), ThreadSizeFormatter()])
 
   def _GetTableData(self, message_infos, threads):
@@ -460,10 +460,10 @@ class ThreadOriginTableStat(TableStat):
     return [d[1] for d in data]  
 
 class ThreadStarterTableStat(ThreadOriginTableStat):
-  def __init__(self, title):
+  def __init__(self):
     ThreadOriginTableStat.__init__(
       self,
-      "%s top thread starters" % title,
+      "Top thread starters",
       "Starter",
       "starter")
   
@@ -474,10 +474,10 @@ class ThreadStarterTableStat(ThreadOriginTableStat):
       return None
 
 class ThreadListTableStat(ThreadOriginTableStat):
-  def __init__(self,title):
+  def __init__(self):
     ThreadOriginTableStat.__init__(
         self,
-        "%s top thread lists" % title,
+        "Top thread lists",
         "List",
         "list")
   
@@ -565,10 +565,10 @@ class UniqueAddressTableStat(TableStat):
    ]
    
 class SenderTableStat(UniqueAddressTableStat):
-  def __init__(self, title):
+  def __init__(self):
     UniqueAddressTableStat.__init__(
         self,
-        "%s top senders" % title,
+        "Top senders",
         "Sender",
         "sender")
   
@@ -576,10 +576,10 @@ class SenderTableStat(UniqueAddressTableStat):
     return [message_info.GetSender()]
 
 class ListIdTableStat(UniqueAddressTableStat):
-  def __init__(self, title):
+  def __init__(self):
     UniqueAddressTableStat.__init__(
         self,
-        "%s top lists" % title,
+        "Top lists",
         "List",
         "list")
   
@@ -587,10 +587,10 @@ class ListIdTableStat(UniqueAddressTableStat):
     return [message_info.GetListId()]
 
 class RecipientTableStat(UniqueAddressTableStat):
-  def __init__(self, title):
+  def __init__(self):
     UniqueAddressTableStat.__init__(
       self,
-      "%s top recipients" % title,
+      "Top recipients",
       "Recipient",
       "recipient")
   
@@ -635,15 +635,15 @@ class StatCollection(StatGroup):
     return str(t)
 
 class MonthStatCollection(StatCollection):
-  def __init__(self, date_range, title):
-    StatCollection.__init__(self, "%s by month for " % title)
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "Month by month for ")
 
     for year in _GetYearRange(date_range):
       self._AddStatRef(MonthStat(year), "%s" % year)
       
 class DayStatCollection(StatCollection):
-  def __init__(self, date_range, title):
-    StatCollection.__init__(self, "%s by month for " % title)
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "Day by day for ")
     
     start, end = [time.localtime(d) for d in date_range]
     

@@ -87,41 +87,41 @@ def InitStats(date_range):
       (
         "Time",
         stats.StatColumnGroup(
-          stats.DayOfWeekStat("All Mail"),
-          stats.TimeOfDayStat("All Mail"),
-          stats.YearStat(date_range, "All Mail"),
+          stats.DayOfWeekStat(),
+          stats.TimeOfDayStat(),
+          stats.YearStat(date_range),
         ),
         stats.StatColumnGroup(
-          stats.MonthStatCollection(date_range, "All Mail"),
-          stats.DayStatCollection(date_range, "All Mail"),
+          stats.MonthStatCollection(date_range),
+          stats.DayStatCollection(date_range),
         ),
       ),
       (
         "Size",
         stats.StatColumnGroup(
-          stats.SizeBucketStat("All Mail"),
-          stats.SizeTableStat("All Mail"),
+          stats.SizeBucketStat(),
+          stats.SizeTableStat(),
         ),
       ),
       (
         "People and Lists",
         stats.StatColumnGroup(
-          stats.SenderTableStat("All Mail"),
-          stats.RecipientTableStat("All Mail"),
+          stats.SenderTableStat(),
+          stats.RecipientTableStat(),
         ),
         stats.StatColumnGroup(
-          stats.ListIdTableStat("All Mail"),
+          stats.ListIdTableStat(),
         ),
       ),
       (
         "Threads",
         stats.StatColumnGroup(
-          stats.ThreadSizeBucketStat("All Mail"),
-          stats.ThreadSizeTableStat("All Mail"),
+          stats.ThreadSizeBucketStat(),
+          stats.ThreadSizeTableStat(),
         ),
         stats.StatColumnGroup(
-          stats.ThreadStarterTableStat("All Mail"),
-          stats.ThreadListTableStat("All Mail"),
+          stats.ThreadStarterTableStat(),
+          stats.ThreadListTableStat(),
         )
       )
     )
