@@ -100,8 +100,11 @@ class MessageInfo(object):
       
     return self.__parsed_name_address[header]
 
+  _PLUS_ADDRESS_RE = re.compile("\+.*@")
+
   def _GetCleanedUpNameAddress(self, name, address):
     address = address.lower()
+    address = MessageInfo._PLUS_ADDRESS_RE.sub("@", address)
     
     if name == "No Description Available":
       name = None
