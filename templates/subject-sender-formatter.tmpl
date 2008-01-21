@@ -1,6 +1,6 @@
 #filter WebSafe
 <span id="${message_info.headers["message-id"], also='"'}" class="message-id">
-#set $subject = $message_info.headers["subject"]
+#set $subject = $message_info.GetHeader("subject")
 <b title="${subject, also='"'}">
   #if len($subject) > 50:
     $subject[0:50]...

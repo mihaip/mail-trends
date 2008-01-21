@@ -134,7 +134,7 @@ class BucketStat(ChartStat):
           "height": h,
           "chart_url": chart.get_url()
         })
-    return str(t)
+    return unicode(t)
 
 class TimeOfDayStat(BucketStat):
   def __init__(self):
@@ -311,7 +311,7 @@ class SubjectSenderFormatter(object):
           "message_info": message_info,
           "connector": "from"
         });
-    return str(t)    
+    return unicode(t)    
 
 class TableStat(Stat):
   _TABLE_SIZE = 40
@@ -342,7 +342,7 @@ class TableStat(Stat):
           "formatters": self.__formatters,
           "objs": self.__display_data
         })
-    return str(t)
+    return unicode(t)
 
 class SizeTableStat(TableStat):
   def __init__(self):
@@ -377,7 +377,7 @@ class ThreadSubjectFormatter(object):
             "subject": thread.subject,
             "connector": "started by"
           });
-    return str(t)    
+    return unicode(t)    
     
 class ThreadSizeFormatter(object):
   def __init__(self):
@@ -412,7 +412,7 @@ class ThreadOriginFormatter(object):
           "address": thread_info["address"],
           "name": thread_info["name"],
         });
-    return str(t)
+    return unicode(t)
 
 class ThreadOriginSizeFormatter(object):
   def __init__(self):
@@ -507,7 +507,7 @@ class AddressNameFormatter(object):
           "address": address,
           "name": name,
         });
-    return str(t)    
+    return unicode(t)    
     
 class AddressCountFormatter(object):
   def __init__(self):
@@ -638,7 +638,7 @@ class StatCollection(StatGroup):
           "stats": self._stats,
           "titles": self.__stat_titles
         })
-    return str(t)
+    return unicode(t)
 
 class MonthStatCollection(StatCollection):
   def __init__(self, date_range):
@@ -678,7 +678,7 @@ class StatColumnGroup(StatGroup):
     t = Template(
         file="templates/stat-column-group.tmpl", 
         searchList = {"stats": self._stats})
-    return str(t)
+    return unicode(t)
     
 class StatTabGroup(StatGroup):
   def __init__(self, *tabs):
@@ -701,7 +701,7 @@ class StatTabGroup(StatGroup):
           "id": self.id,
           "tabs": self.__tabs,
         })
-    return str(t)    
+    return unicode(t)    
 
 class StatTab(object):
   _IdIndex = 0
@@ -743,4 +743,4 @@ class TitleStat(Stat):
           "message_count": self.__message_count,
           "thread_count": self.__thread_count
         })
-    return str(t)
+    return unicode(t)

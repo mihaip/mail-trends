@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import codecs
 import getopt
 import logging
 import messageinfo
@@ -157,8 +158,8 @@ t = Template(
       "host": re.sub("^.*@", "", opts["username"])
     }
 )
-out = open("out/index.html", "w")
-out.write(str(t))
+out = codecs.open("out/index.html", mode="w", encoding='utf-8')
+out.write(unicode(t))
 out.close()
 
 logging.info("Done")

@@ -1,4 +1,6 @@
 import email
+import email.utils
+import email.header
 import imaplib
 import md5
 import time
@@ -66,10 +68,10 @@ class MessageInfo(object):
     return self._GetNameAddress("list-id")
     
   def GetRecipients(self):
-    tos = self.headers.get_all('to', [])
-    ccs = self.headers.get_all('cc', [])
-    resent_tos = self.headers.get_all('resent-to', [])
-    resent_ccs = self.headers.get_all('resent-cc', [])
+    tos = self.GetHeaderAll('to')
+    ccs = self.GetHeaderAll('cc')
+    resent_tos = self.GetHeaderAll('resent-to')
+    resent_ccs = self.GetHeaderAll('resent-cc')
     all_recipients = email.utils.getaddresses(
         tos + ccs + resent_tos + resent_ccs)
     
@@ -88,7 +90,7 @@ class MessageInfo(object):
       return None, None
       
     if header not in self.__parsed_name_address:
-      header_value = self.headers[header]
+      header_value = self.GetHeader(header)
       header_value = header_value.replace("\n", " ")
       header_value = header_value.replace("\r", " ")
       name, address = email.utils.parseaddr(header_value)
@@ -101,6 +103,19 @@ class MessageInfo(object):
     return self.__parsed_name_address[header]
 
   _PLUS_ADDRESS_RE = re.compile("\+.*@")
+
+  def GetHeader(self, name):
+    return self._GetDecodedValue(self.headers[name])
+  
+  def GetHeaderAll(self, name):
+    values = self.headers.get_all(name, [])
+    return [self._GetDecodedValue(value) for value in values]
+    
+  def _GetDecodedValue(self, value):
+    pieces = email.header.decode_header(value)
+    unicode_pieces = \
+        [unicode(text, charset or "ascii") for text, charset in pieces]
+    return u"".join(unicode_pieces)
 
   def _GetCleanedUpNameAddress(self, name, address):
     address = address.lower()
@@ -138,4 +153,4 @@ class MessageInfo(object):
 
   def __str__(self):
     return "%s (size: %d, date: %s)" % (
-        self.headers["subject"], self.size, self.__date_string)
+        self.GetHeader("subject"), self.size, self.__date_string)
