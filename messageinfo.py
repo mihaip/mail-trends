@@ -120,6 +120,9 @@ class MessageInfo(object):
     except LookupError:
       # Ignore bogus encodings
       return value
+    except UnicodeDecodeError:
+      # Ignore mis-encoded data
+      return value
 
   def _GetCleanedUpNameAddress(self, name, address):
     address = address.lower()
