@@ -112,10 +112,14 @@ class MessageInfo(object):
     return [self._GetDecodedValue(value) for value in values]
     
   def _GetDecodedValue(self, value):
-    pieces = email.header.decode_header(value)
-    unicode_pieces = \
-        [unicode(text, charset or "ascii") for text, charset in pieces]
-    return u"".join(unicode_pieces)
+    try:
+      pieces = email.header.decode_header(value)
+      unicode_pieces = \
+          [unicode(text, charset or "ascii") for text, charset in pieces]
+      return u"".join(unicode_pieces)
+    except LookupError:
+      # Ignore bogus encodings
+      return value
 
   def _GetCleanedUpNameAddress(self, name, address):
     address = address.lower()

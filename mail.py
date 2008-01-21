@@ -118,7 +118,10 @@ class Mail(object):
       
       chunk_message_ids = message_ids[chunk_start:chunk_end]
     
-      logging.info("  Fetching info for %d messages", len(chunk_message_ids))
+      logging.info("  Fetching info for %d messages (%d/%d)", 
+          len(chunk_message_ids),
+          chunk_end,
+          len(message_ids))
     
       fetch_reply = self.__UidCommand(
           "FETCH",
