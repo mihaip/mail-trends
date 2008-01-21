@@ -305,19 +305,11 @@ class SubjectSenderFormatter(object):
     self.css_class = "message"
   
   def Format(self, message_info):
-    name, address = message_info.GetSender()
-      
-    full_subject = subject = message_info.headers["subject"]
-    if len(subject) > 50:
-      subject = subject[0:50] + "..."
-
     t = Template(
         file="templates/subject-sender-formatter.tmpl",
         searchList = {
-          "subject": subject,
-          "full_subject": full_subject,
-          "address": address,
-          "name": name,
+          "message_info": message_info,
+          "connector": "from"
         });
     return str(t)    
 
@@ -371,7 +363,21 @@ class ThreadSubjectFormatter(object):
     self.css_class = "subject"
   
   def Format(self, thread):
-    return thread.subject
+    if thread.message and thread.message.message_info:
+      t = Template(
+          file="templates/subject-sender-formatter.tmpl",
+          searchList = {
+            "message_info": thread.message.message_info,
+            "connector": "started by"
+          });
+    else:
+      t = Template(
+          file="templates/subject-formatter.tmpl",
+          searchList = {
+            "subject": thread.subject,
+            "connector": "started by"
+          });
+    return str(t)    
     
 class ThreadSizeFormatter(object):
   def __init__(self):
@@ -465,7 +471,7 @@ class ThreadStarterTableStat(ThreadOriginTableStat):
       self,
       "Top thread starters",
       "Starter",
-      "starter")
+      "sender")
   
   def _GetThreadOrigin(self, thread):
     if thread.message and thread.message.message_info:

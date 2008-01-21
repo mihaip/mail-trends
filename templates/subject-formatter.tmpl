@@ -1,0 +1,9 @@
+#filter WebSafe
+<b title="${subject, also='"'}" class="subject">
+  #if len($subject) > 50:
+    $subject[0:50]...
+  #else
+    $subject
+  #end if
+</b> 
+#end filter

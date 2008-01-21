@@ -1,7 +1,7 @@
 <div class="stat-tabs">
   <ul class="stat-tabs-titles">
     #for $tab in $tabs
-      <li onclick="toggleTabStat('$tab.id')" id="$tab.id-title" class="stat-tab-title">$tab.title</li>
+      <li onclick="toggleTabStat('$tab.id')" id="$tab.id-title" class="stat-tab-title unselectable">$tab.title</li>
     #end for
   </ul>
   

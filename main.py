@@ -3,6 +3,7 @@
 import getopt
 import logging
 import messageinfo
+import re
 import sys
 
 from Cheetah.Template import Template
@@ -149,7 +150,13 @@ for stat in stats:
 
 logging.info("Outputting HTML")
 
-t = Template(file="templates/index.tmpl", searchList = {"stats": stats})
+t = Template(
+    file="templates/index.tmpl",
+    searchList = {
+      "stats": stats,
+      "host": re.sub("^.*@", "", opts["username"])
+    }
+)
 out = open("out/index.html", "w")
 out.write(str(t))
 out.close()

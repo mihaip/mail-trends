@@ -101,3 +101,14 @@ table.top20 tr.top40 {
   border: solid 1px #ccc;
   padding: 1em;
 }
+
+.unselectable {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+}
+
+.clickable:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}

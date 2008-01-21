@@ -1,5 +1,15 @@
 #filter WebSafe
-<b title="${full_subject, also='"'}">$subject</b> 
-from 
+<span id="${message_info.headers["message-id"], also='"'}" class="message-id">
+#set $subject = $message_info.headers["subject"]
+<b title="${subject, also='"'}">
+  #if len($subject) > 50:
+    $subject[0:50]...
+  #else
+    $subject
+  #end if
+</b> 
+$connector 
+#set $name, $address = $message_info.GetSender()
 <i title="${address, also='"'}">$name</i>
 #end filter
+</span>

@@ -47,3 +47,60 @@ function toggleTabStat(idPrefix) {
   _(".stat-tab-pane", tabNode).addClass("hidden");
   _("#" + idPrefix + "-pane").removeClass("hidden");
 }
+
+var SEARCH_PREFIX = "#search/";
+var APPS_PREFIX = "https://mail.google.com/a/";
+var GMAIL_PREFIX = "http://mail.google.com/mail/";
+
+function runSearch(query) {
+  window.open(
+      (MAIL_HOST == "gmail.com" ? GMAIL_PREFIX : APPS_PREFIX + MAIL_HOST) + 
+      SEARCH_PREFIX +
+      encodeURIComponent(query));
+}
+
+function addSearchLinks(selector, queryGenerator) {
+  var matchingNodes = _(selector);
+  
+  matchingNodes.addClass("clickable");
+  matchingNodes.each(function() {
+    var node = this;
+    node.onclick = function() {
+      runSearch(queryGenerator(node));
+    }
+  });
+
+}
+
+_(function() {
+  addSearchLinks(
+      ".message-id", 
+      function(node) {
+        return node.id;
+      });
+
+  addSearchLinks(
+      "td.sender", 
+      function(node) {
+        return "from:" + _("span", node).get(0).title;
+      });
+  
+  addSearchLinks(
+      "td.recipient", 
+      function(node) {
+        return "to:" + _("span", node).get(0).title;
+      });
+
+  addSearchLinks(
+      "td.list", 
+      function(node) {
+        return "listid:" + _("span", node).get(0).title;
+      });
+
+  addSearchLinks(
+      "b.subject",
+      function(node) {
+        return "subject:" + node.title;
+      });
+
+});
