@@ -64,6 +64,10 @@ h3 {
   text-align: right;
 }
 
+.table-stat td.sorting {
+  background: #f9f9f9;
+}
+
 table.top10 tr.top20,
 table.top10 tr.top40,
 table.top20 tr.top40 {

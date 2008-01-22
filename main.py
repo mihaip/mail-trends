@@ -77,8 +77,16 @@ def ExtractThreads(message_infos):
   
   containers = []
   for subject, container in thread_dict.items():
-    container.subject = subject
-    containers.append(container)
+    # Skip over long threads that are threaded purely based on subject (no 
+    # root, all items are at the same level) since they're likely to be 
+    # unrelated/automated
+    if container.is_dummy() and \
+       len(container) > 10 and \
+       len(container) == len(container.children) + 1:
+      continue
+    else:
+      container.subject = subject
+      containers.append(container)
     
   return containers
 

@@ -7,7 +7,7 @@ import time
 from Cheetah.Template import Template
 from pygooglechart import StackedVerticalBarChart, Axis
 
-_Y_AXIS_SPACE = 32
+_Y_AXIS_SPACE = 36
 _MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 
     "Oct", "Nov", "Dec"]
 
@@ -294,7 +294,7 @@ class ThreadSizeBucketStat(BucketStat):
 class SizeFormatter(object):
   def __init__(self):
     self.header = "Size"
-    self.css_class = "size"
+    self.css_class = "size sorting"
   
   def Format(self, message_info):
     return _GetDisplaySize(message_info.size)
@@ -382,7 +382,7 @@ class ThreadSubjectFormatter(object):
 class ThreadSizeFormatter(object):
   def __init__(self):
     self.header = "Length"
-    self.css_class = "length"
+    self.css_class = "length sorting"
   
   def Format(self, thread):
     return len(thread)
@@ -416,12 +416,20 @@ class ThreadOriginFormatter(object):
 
 class ThreadOriginSizeFormatter(object):
   def __init__(self):
-    self.header = "Avg. Thread Length"
-    self.css_class = "length"
+    self.header = "Avg. Length"
+    self.css_class = "length sorting"
     
   def Format(self, thread_info):
     return "%.2f" % (
         float(thread_info["total_size"])/float(thread_info["count"]))
+        
+class ThreadCountFormatter(object):
+  def __init__(self):
+    self.header = "Count"
+    self.css_class = "count"
+    
+  def Format(self, thread_info):
+    return "%d" % thread_info["count"]
 
 class ThreadOriginTableStat(TableStat):
   def __init__(self, title, column_header, column_css_class):
@@ -429,7 +437,8 @@ class ThreadOriginTableStat(TableStat):
       self,
       title,
       [ThreadOriginFormatter(column_header, column_css_class), 
-          ThreadOriginSizeFormatter()])
+          ThreadOriginSizeFormatter(),
+          ThreadCountFormatter()])
  
   def _GetTableData(self, message_infos, threads):
     origin_threads = {}
@@ -512,7 +521,7 @@ class AddressNameFormatter(object):
 class AddressCountFormatter(object):
   def __init__(self):
     self.header = "Msg. Count"
-    self.css_class = "count"
+    self.css_class = "count sorting"
 
   def Format(self, data):
     address, name, count, bytes = data
