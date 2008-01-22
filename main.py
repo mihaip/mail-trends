@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/python
 
 import codecs
 import getopt
@@ -77,13 +77,13 @@ def ExtractThreads(message_infos):
   
   containers = []
   for subject, container in thread_dict.items():
-    # Skip over long threads that are threaded purely based on subject (no 
-    # root, all items are at the same level) since they're likely to be 
-    # unrelated/automated
-    if container.is_dummy() and \
-       len(container) > 10 and \
-       len(container) == len(container.children) + 1:
-      continue
+    # jwzthreading is too aggressive in threading by subject and will combine
+    # distinct threads that happen to have the same subject. Split them up if
+    # we have a dummy container that has lots of children at the first level.
+    if container.is_dummy() and len(container.children) >= 10:
+      for child_container in container.children:
+        child_container.subject = subject
+        containers.append(child_container)
     else:
       container.subject = subject
       containers.append(container)

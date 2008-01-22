@@ -259,7 +259,14 @@ class SizeBucketStat(BucketStat):
 class ThreadSizeBucketStat(BucketStat):
   _SIZE_BUCKETS = [
     1,
+    2,
+    3,
+    4,
     5,
+    6,
+    7,
+    8,
+    9,
     10,
     20,
     30,
