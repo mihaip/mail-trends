@@ -12,7 +12,10 @@ from Cheetah.Template import Template
 import jwzthreading
 
 import mail
-import stats
+import stats.base
+import stats.bucket
+import stats.group
+import stats.table
 
 def GetOptsMap():
   opts, args = getopt.getopt(sys.argv[1:], "", [
@@ -103,46 +106,46 @@ def ExtractThreads(message_infos):
 
 def InitStats(date_range):
   s = [
-    stats.TitleStat(date_range, "All Mail"),
-    stats.StatTabGroup(
+    stats.base.TitleStat(date_range, "All Mail"),
+    stats.group.StatTabGroup(
       (
         "Time",
-        stats.StatColumnGroup(
-          stats.DayOfWeekStat(),
-          stats.TimeOfDayStat(),
-          stats.YearStat(date_range),
+        stats.group.StatColumnGroup(
+          stats.bucket.DayOfWeekStat(),
+          stats.bucket.TimeOfDayStat(),
+          stats.bucket.YearStat(date_range),
         ),
-        stats.StatColumnGroup(
-          stats.MonthStatCollection(date_range),
-          stats.DayStatCollection(date_range),
+        stats.group.StatColumnGroup(
+          stats.group.MonthStatCollection(date_range),
+          stats.group.DayStatCollection(date_range),
         ),
       ),
       (
         "Size",
-        stats.StatColumnGroup(
-          stats.SizeBucketStat(),
-          stats.SizeTableStat(),
+        stats.group.StatColumnGroup(
+          stats.bucket.SizeBucketStat(),
+          stats.table.SizeTableStat(),
         ),
       ),
       (
         "People and Lists",
-        stats.StatColumnGroup(
-          stats.SenderTableStat(),
-          stats.RecipientTableStat(),
+        stats.group.StatColumnGroup(
+          stats.table.SenderTableStat(),
+          stats.table.RecipientTableStat(),
         ),
-        stats.StatColumnGroup(
-          stats.ListIdTableStat(),
+        stats.group.StatColumnGroup(
+          stats.table.ListIdTableStat(),
         ),
       ),
       (
         "Threads",
-        stats.StatColumnGroup(
-          stats.ThreadSizeBucketStat(),
-          stats.ThreadSizeTableStat(),
+        stats.group.StatColumnGroup(
+          stats.bucket.ThreadSizeBucketStat(),
+          stats.table.ThreadSizeTableStat(),
         ),
-        stats.StatColumnGroup(
-          stats.ThreadStarterTableStat(),
-          stats.ThreadListTableStat(),
+        stats.group.StatColumnGroup(
+          stats.table.ThreadStarterTableStat(),
+          stats.table.ThreadListTableStat(),
         )
       )
     )
