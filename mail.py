@@ -95,10 +95,16 @@ class Mail(object):
 
     if max_fetch != -1 and len(message_ids) > max_fetch:
       if self.__random_subset:
-        # Pick random sample when there is a max, so that we get more interesting
-        # data. However, use the same seed so that runs will be deterministic
-        # and we can take advantage of record/replay
+        # Pick random sample when there is a max, so that we get more 
+        # interesting data. However, use the same seed so that runs will be 
+        # deterministic and we can take advantage of record/replay
         random.seed(len(message_ids))
+        
+        # If possible, select a random sample from a recent subset of messages
+        subset_size = max_fetch * 40
+        if len(message_ids) > subset_size:
+          message_ids = message_ids[-subset_size - 1:-1]
+        
         message_ids = random.sample(message_ids, max_fetch)
       else:
         message_ids = message_ids[-max_fetch - 1:-1]

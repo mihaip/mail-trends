@@ -18,7 +18,11 @@ def GetOptsMap():
       # Standard options
       "username=", "password=", "use_ssl", "server=", 
       # Development options
-      "record", "replay", "max_messages=", "skip_labels"])
+      "record", "replay", 
+      
+      "max_messages=", "random_subset",
+      
+      "skip_labels"])
   
   opts_map = {}
   for name, value in opts:
@@ -34,7 +38,8 @@ def GetMessageInfos(opts):
   m = mail.Mail(
       opts["server"], "use_ssl" in opts, opts["username"], opts["password"],
       "record" in opts, "replay" in opts, 
-      "max_messages" in opts and int(opts["max_messages"]) or -1)
+      "max_messages" in opts and int(opts["max_messages"]) or -1,
+      "random_subset" in opts)
   
   # First, get all message infos
   m.SelectAllMail()
