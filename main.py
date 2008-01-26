@@ -2,6 +2,7 @@
 
 import codecs
 import getopt
+import getpass
 import logging
 import messageinfo
 import re
@@ -27,8 +28,13 @@ def GetOptsMap():
   opts_map = {}
   for name, value in opts:
     opts_map[name[2:]] = value
-  
+
   assert "username" in opts_map
+  
+  if "password" not in opts_map:
+    opts_map["password"] = getpass.getpass(
+        prompt="Password for %s: " % opts_map["username"])
+  
   assert "password" in opts_map
   assert "server" in opts_map
   
