@@ -65,7 +65,10 @@ class MessageInfo(object):
     return self._GetNameAddress("from")
 
   def GetListId(self):
-    return self._GetNameAddress("list-id")
+    (name, address) = self._GetNameAddress("list-id")
+    # Don't use the name part of the list-id header, it tends to be overly 
+    # descriptive (i.e. too long)
+    return address, address
     
   def GetRecipients(self):
     tos = self.GetHeaderAll('to')
