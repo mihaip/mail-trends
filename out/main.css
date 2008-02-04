@@ -116,3 +116,29 @@ table.top20 tr.top40 {
   cursor: pointer;
   text-decoration: underline;
 }
+
+.distribution .chart {
+  vertical-align: top;
+}
+
+.legend {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend li {
+  margin: 0;
+  padding: 3px 0px;
+  font-size: smaller;
+  color: #333;
+  white-space: nowrap;
+}
+
+.legend .swatch {
+  float: left;
+  width: 9px;
+  height: 9px;
+  border: solid 1px #ccc;
+  margin: -1px 2px 0 0;
+}

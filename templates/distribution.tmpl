@@ -1,0 +1,22 @@
+<table class="stat distribution" id="$id">  
+  <tr>
+    <td class="chart">
+      <img src="$chart.get_url()" 
+           width="$chart.width" 
+           height="$chart.height" 
+           alt="">
+    </td>
+    <td>
+      <ul class="legend">
+      #for $color, $name, $address in $legend
+        <li class="$class">
+          <div style="background-color: #$color" class="swatch"></div>
+          #filter WebSafe
+          <span title="${address, also='"'}">$name</span>
+          #end filter
+        </li>
+      #end for
+      </ul>
+    </td>
+  </tr>  
+</table>

@@ -1,3 +1,5 @@
+from pygooglechart import StackedVerticalBarChart, Axis
+
 from base import *
 
 _Y_AXIS_SPACE = 36
@@ -52,7 +54,6 @@ class BucketStat(ChartStat):
     
     # We render the title in the template instead of in the chart, to give
     # stat collections and individual stats similar appearance
-    
     t = Template(
         file="templates/bucket-stat.tmpl",
         searchList = {

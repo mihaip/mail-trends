@@ -1,5 +1,6 @@
 from base import *
 from bucket import *
+from distribution import *
 
 class StatGroup(Stat):
   def __init__(self):
@@ -65,6 +66,13 @@ class DayStatCollection(StatCollection):
         self._AddStatRef(
             DayStat(year, month), 
             "%s %s" % (year, MONTH_NAMES[month - 1]))
+
+class ListDistributionStatCollection(StatCollection):
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "List distribution for ")
+
+    for year in GetYearRange(date_range):
+      self._AddStatRef(ListDistribution(year), "%s" % year)
             
 class StatColumnGroup(StatGroup):
   def __init__(self, *args):

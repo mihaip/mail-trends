@@ -135,6 +135,7 @@ def InitStats(date_range):
         ),
         stats.group.StatColumnGroup(
           stats.table.ListIdTableStat(),
+          stats.group.ListDistributionStatCollection(date_range),
         ),
       ),
       (

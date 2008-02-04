@@ -5,7 +5,8 @@ import sys
 import time
 
 from Cheetah.Template import Template
-from pygooglechart import StackedVerticalBarChart, Axis
+from pygooglechart import ExtendedData
+from pygooglechart import SimpleData
 
 MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 
     "Oct", "Nov", "Dec"]
@@ -49,7 +50,8 @@ class ChartStat(Stat):
   def _GetRescaledData(self, data, data_max):
     # Use the extended encoding if we don't have too many data points
     if data_max:
-      rescaled_max = len(data) > 1500 and 61 or 4095
+      rescaled_max = (len(data) > 1500 and \
+          SimpleData.max_value() or ExtendedData.max_value())
       scaling_factor = float(rescaled_max) / float(data_max)
     else:
       scaling_factor = 0

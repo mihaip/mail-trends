@@ -56,7 +56,10 @@ function runSearch(query) {
   window.open(
       (MAIL_HOST == "gmail.com" ? GMAIL_PREFIX : APPS_PREFIX + MAIL_HOST) + 
       SEARCH_PREFIX +
-      encodeURIComponent(query));
+      encodeURIComponent(query),
+      // Use window name so that if left open, the instance will be reused and
+      // Gmail doesn't have to be reloaded
+      "mail-triends-" + MAIL_HOST);
 }
 
 function addSearchLinks(selector, queryGenerator) {
@@ -80,19 +83,19 @@ _(function() {
       });
 
   addSearchLinks(
-      "td.sender", 
+      "td.sender, li.sender", 
       function(node) {
         return "from:" + _("span", node).get(0).title;
       });
   
   addSearchLinks(
-      "td.recipient", 
+      "td.recipient, li.recipient", 
       function(node) {
         return "to:" + _("span", node).get(0).title;
       });
 
   addSearchLinks(
-      "td.list", 
+      "td.list, li.list", 
       function(node) {
         return "listid:" + _("span", node).get(0).title;
       });
