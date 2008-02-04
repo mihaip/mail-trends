@@ -131,7 +131,11 @@ def InitStats(date_range):
         "People and Lists",
         stats.group.StatColumnGroup(
           stats.table.SenderTableStat(),
+          stats.group.SenderDistributionStatCollection(date_range),
+        ),
+        stats.group.StatColumnGroup(
           stats.table.RecipientTableStat(),
+          stats.group.RecipientDistributionStatCollection(date_range),
         ),
         stats.group.StatColumnGroup(
           stats.table.ListIdTableStat(),

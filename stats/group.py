@@ -67,6 +67,20 @@ class DayStatCollection(StatCollection):
             DayStat(year, month), 
             "%s %s" % (year, MONTH_NAMES[month - 1]))
 
+class SenderDistributionStatCollection(StatCollection):
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "Sender distribution for ")
+
+    for year in GetYearRange(date_range):
+      self._AddStatRef(SenderDistribution(year), "%s" % year)
+
+class RecipientDistributionStatCollection(StatCollection):
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "Recipient distribution for ")
+
+    for year in GetYearRange(date_range):
+      self._AddStatRef(RecipientDistribution(year), "%s" % year)
+
 class ListDistributionStatCollection(StatCollection):
   def __init__(self, date_range):
     StatCollection.__init__(self, "List distribution for ")

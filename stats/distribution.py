@@ -17,14 +17,15 @@ _FILL_COLORS = [
   'F0F071',
 ]
 
-class ListDistribution(ChartStat):
+class Distribution(ChartStat):
   _BUCKET_SIZE = 5
   _BUCKET_COUNT = int(math.floor(365/_BUCKET_SIZE))
 
-  def __init__(self, year):
+  def __init__(self, year, css_class):
     ChartStat.__init__(self)
     
     self.__year = year
+    self.__css_class = css_class
     self.__buckets = [{} for i in xrange(0, ListDistribution._BUCKET_COUNT)]
     self.__min_bucket = sys.maxint
     self.__max_bucket = -sys.maxint - 1
@@ -37,24 +38,25 @@ class ListDistribution(ChartStat):
       
       if date.tm_year != self.__year: continue
 
-      bucket_index = (date.tm_yday - 1) / ListDistribution._BUCKET_SIZE
+      bucket_index = (date.tm_yday - 1) / Distribution._BUCKET_SIZE
       
       # Ignore the last partial week bucket of the year
-      if bucket_index >= ListDistribution._BUCKET_COUNT: continue
+      if bucket_index >= Distribution._BUCKET_COUNT: continue
 
-      name, address = message_info.GetListId()
-      self.__address_names[address] = name
-      
-      if not address: continue
-
-      self.__all_addresses[address] = self.__all_addresses.get(address, 0) + 1
-
-      bucket = self.__buckets[bucket_index]
-      
-      if bucket_index > self.__max_bucket: self.__max_bucket = bucket_index
-      if bucket_index < self.__min_bucket: self.__min_bucket = bucket_index
-      
-      bucket[address] = bucket.get(address, 0) + 1
+      for name, address in self._GetAddresses(message_info):
+        self.__address_names[address] = name
+        
+        if not address: continue
+  
+        self.__all_addresses[address] = \
+            self.__all_addresses.get(address, 0) + 1
+  
+        bucket = self.__buckets[bucket_index]
+        
+        if bucket_index > self.__max_bucket: self.__max_bucket = bucket_index
+        if bucket_index < self.__min_bucket: self.__min_bucket = bucket_index
+        
+        bucket[address] = bucket.get(address, 0) + 1
 
   def GetHtml(self):
     # Determine top 10 addresses
@@ -103,7 +105,7 @@ class ListDistribution(ChartStat):
           smoothed.append(0)
         else:
           point = points[i]
-          if len(window) == ListDistribution._BUCKET_SIZE:
+          if len(window) == Distribution._BUCKET_SIZE:
             window_sum -= window.pop(0)
           window.append(point)
           window_sum += point
@@ -147,6 +149,27 @@ class ListDistribution(ChartStat):
           # We don't use the legend feature of the chart API since that would
           # make the URL longer than its limits
           "legend": legend, 
-          "class": "list",
+          "class": self.__css_class,
         })
     return unicode(t)
+
+class SenderDistribution(Distribution):
+  def __init__(self, year):
+    Distribution.__init__(self, year, "sender")
+  
+  def _GetAddresses(self, message_info):
+    return [message_info.GetSender()]
+
+class RecipientDistribution(Distribution):
+  def __init__(self, year):
+    Distribution.__init__(self, year, "recipient")
+  
+  def _GetAddresses(self, message_info):
+    return message_info.GetRecipients()
+    
+class ListDistribution(Distribution):
+  def __init__(self, year):
+    Distribution.__init__(self, year, "list")
+    
+  def _GetAddresses(self, message_info):
+    return [message_info.GetListId()]
