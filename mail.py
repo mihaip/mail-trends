@@ -101,7 +101,7 @@ class Mail(object):
         random.seed(len(message_ids))
         
         # If possible, select a random sample from a recent subset of messages
-        subset_size = max_fetch * 40
+        subset_size = max_fetch * 30
         if len(message_ids) > subset_size:
           message_ids = message_ids[-subset_size - 1:-1]
         
