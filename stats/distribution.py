@@ -89,6 +89,10 @@ class Distribution(ChartStat):
       
         fraction_sum += fraction
         
+        # Make sure everything adds up to 1.0
+        if address == top_addresses[-1]:
+          fraction_sum = 1.0
+        
         if address not in bucket_lines:
           bucket_lines[address] = []
 
