@@ -23,7 +23,7 @@ def GetOptsMap():
       "username=", "password=", "use_ssl", "server=", 
 
       # Other params
-      "filter_out=",
+      "filter_out=", "me=",
       
       # Development options
       "record", "replay", 
@@ -80,6 +80,25 @@ def GetMessageInfos(opts):
           message_info.AddMailbox(mailbox)
   
     messageinfo.MessageInfo.SetParseDate(True)
+  
+  # Tag messages as being from the user running the script
+  if "me" in opts:
+    logging.info("Identifying \"me\" messages")
+    me_addresses = [
+        address.lower().strip() for address in opts["me"].split(",")]
+    
+    me_count = 0
+    
+    for message_info in message_infos:
+      name, address = message_info.GetSender()
+      
+      for me_address in me_addresses:
+        if me_address == address:
+          message_info.SetMe(True)
+          me_count += 1
+          break
+    
+    logging.info("  %d messages are from \"me\"" % me_count)
   
   m.Logout()
   
@@ -185,6 +204,12 @@ def InitStats(date_range):
         stats.group.StatColumnGroup(
           stats.table.ListIdTableStat(),
           stats.group.ListDistributionStatCollection(date_range),
+        ),
+      ),
+      (
+        "Me",
+        stats.group.StatColumnGroup(
+          stats.table.MeRecipientTableStat(),
         ),
       ),
       (

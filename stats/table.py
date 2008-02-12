@@ -320,3 +320,17 @@ class RecipientTableStat(UniqueAddressTableStat):
   
   def _GetAddresses(self, message_info):
     return message_info.GetRecipients()
+    
+class MeRecipientTableStat(UniqueAddressTableStat):
+  def __init__(self):
+    UniqueAddressTableStat.__init__(
+      self,
+      "Top recipients from me",
+      "Recipient",
+      "recipient")
+  
+  def _GetAddresses(self, message_info):
+    if message_info.IsMe():
+      return message_info.GetRecipients()
+    else:
+      return []

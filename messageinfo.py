@@ -23,6 +23,7 @@ class MessageInfo(object):
   def __init__(self): 
     self.__message_id = None
     self.__mailboxes = []
+    self.__is_me = False
     
     self.__parsed_name_address = {}
   
@@ -113,6 +114,12 @@ class MessageInfo(object):
   def GetHeaderAll(self, name):
     values = self.headers.get_all(name, [])
     return [self._GetDecodedValue(value) for value in values]
+
+  def SetMe(self, is_me):
+    self.__is_me = is_me
+
+  def IsMe(self):
+    return self.__is_me
     
   def _GetDecodedValue(self, value):
     try:
@@ -160,7 +167,7 @@ class MessageInfo(object):
   def SetParseDate(parseDates):
     MessageInfo.__parseDates = parseDates
   SetParseDate = staticmethod(SetParseDate)
-
+  
   def __str__(self):
     return "%s (size: %d, date: %s)" % (
         self.GetHeader("subject"), self.size, self.__date_string)
