@@ -87,18 +87,28 @@ def GetMessageInfos(opts):
     me_addresses = [
         address.lower().strip() for address in opts["me"].split(",")]
     
-    me_count = 0
+    me_from_count = 0
+    me_to_count = 0
     
     for message_info in message_infos:
       name, address = message_info.GetSender()
       
       for me_address in me_addresses:
         if me_address == address:
-          message_info.SetMe(True)
-          me_count += 1
+          message_info.is_from_me = True
+          me_from_count += 1
           break
-    
-    logging.info("  %d messages are from \"me\"" % me_count)
+          
+      for name, address in message_info.GetRecipients():
+        for me_address in me_addresses:
+          if me_address == address:
+            message_info.is_to_me = True
+            me_to_count += 1
+            break
+        if message_info.is_to_me: break
+            
+    logging.info("  %d messages are from \"me\"" % me_from_count)
+    logging.info("  %d messages are to \"me\"" % me_to_count)
   
   m.Logout()
   
@@ -210,6 +220,9 @@ def InitStats(date_range):
         "Me",
         stats.group.StatColumnGroup(
           stats.table.MeRecipientTableStat(),
+        ),
+        stats.group.StatColumnGroup(
+          stats.table.MeSenderTableStat(),
         ),
       ),
       (

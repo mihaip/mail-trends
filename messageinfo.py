@@ -23,7 +23,8 @@ class MessageInfo(object):
   def __init__(self): 
     self.__message_id = None
     self.__mailboxes = []
-    self.__is_me = False
+    self.is_from_me = False
+    self.is_to_me = False
     
     self.__parsed_name_address = {}
   
@@ -115,12 +116,6 @@ class MessageInfo(object):
     values = self.headers.get_all(name, [])
     return [self._GetDecodedValue(value) for value in values]
 
-  def SetMe(self, is_me):
-    self.__is_me = is_me
-
-  def IsMe(self):
-    return self.__is_me
-    
   def _GetDecodedValue(self, value):
     try:
       pieces = email.header.decode_header(value)
