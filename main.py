@@ -59,43 +59,7 @@ def GetMessageInfos(opts):
   
   # Filter out those that we're not interested in
   if "filter_out" in opts:
-    logging.info("Filtering messages")
-    remaining_message_infos = []
-    
-    filters = []
-    raw_filters = opts["filter_out"].split(",")
-    for raw_filter in raw_filters:
-      operator, value = raw_filter.strip().split(":", 1)
-      filters.append([operator, value.lower()])
-    
-    for message_info in message_infos:
-      filtered_out = False
-      for operator, operator_value in filters:
-        if operator == "to":
-          pairs = message_info.GetRecipients()
-        elif operator == "from":
-          pairs = [message_info.GetSender()]
-        elif operator == "list":
-          pairs = [message_info.GetListId()]
-        else:
-          raise AssertionError("unknown operator: %s" % operator)
-
-        values = [name and name.lower() or "" for name, address in pairs] + \
-                 [address and address.lower() or "" for name, address in pairs]
-
-        for value in values:
-          if value.find(operator_value) != -1:
-            filtered_out = True
-            break
-        
-        if filtered_out:
-          break
-      
-      if not filtered_out:
-        remaining_message_infos.append(message_info)
-
-    logging.info("  %d messages remaining" % len(remaining_message_infos))
-    message_infos = remaining_message_infos
+    message_infos = FilterMessageInfos(message_infos, opts["filter_out"])
   
   # Then for each mailbox, see which messages are in it, and attach that to 
   # the mail info
@@ -120,6 +84,45 @@ def GetMessageInfos(opts):
   m.Logout()
   
   return message_infos
+
+def FilterMessageInfos(message_infos, filter_param):
+  logging.info("Filtering messages")
+  remaining_message_infos = []
+  
+  filters = []
+  raw_filters = filter_param.split(",")
+  for raw_filter in raw_filters:
+    operator, value = raw_filter.strip().split(":", 1)
+    filters.append([operator, value.lower()])
+  
+  for message_info in message_infos:
+    filtered_out = False
+    for operator, operator_value in filters:
+      if operator == "to":
+        pairs = message_info.GetRecipients()
+      elif operator == "from":
+        pairs = [message_info.GetSender()]
+      elif operator == "list":
+        pairs = [message_info.GetListId()]
+      else:
+        raise AssertionError("unknown operator: %s" % operator)
+
+      values = [name and name.lower() or "" for name, address in pairs] + \
+               [address and address.lower() or "" for name, address in pairs]
+
+      for value in values:
+        if value.find(operator_value) != -1:
+          filtered_out = True
+          break
+      
+      if filtered_out:
+        break
+    
+    if not filtered_out:
+      remaining_message_infos.append(message_info)
+
+  logging.info("  %d messages remaining" % len(remaining_message_infos))
+  return remaining_message_infos
 
 def ExtractThreads(message_infos):
   thread_messages = []
