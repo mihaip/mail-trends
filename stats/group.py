@@ -87,6 +87,20 @@ class ListDistributionStatCollection(StatCollection):
 
     for year in GetYearRange(date_range):
       self._AddStatRef(ListDistribution(year), "%s" % year)
+
+class MeRecipientDistributionStatCollection(StatCollection):
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "Recipients from me distribution for ")
+
+    for year in GetYearRange(date_range):
+      self._AddStatRef(MeRecipientDistribution(year), "%s" % year)
+
+class MeSenderDistributionStatCollection(StatCollection):
+  def __init__(self, date_range):
+    StatCollection.__init__(self, "Sender to me distribution for ")
+
+    for year in GetYearRange(date_range):
+      self._AddStatRef(MeSenderDistribution(year), "%s" % year)
             
 class StatColumnGroup(StatGroup):
   def __init__(self, *args):

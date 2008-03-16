@@ -220,9 +220,11 @@ def InitStats(date_range):
         "Me",
         stats.group.StatColumnGroup(
           stats.table.MeRecipientTableStat(),
+          stats.group.MeRecipientDistributionStatCollection(date_range),          
         ),
         stats.group.StatColumnGroup(
           stats.table.MeSenderTableStat(),
+          stats.group.MeSenderDistributionStatCollection(date_range),          
         ),
       ),
       (

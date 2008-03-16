@@ -177,3 +177,24 @@ class ListDistribution(Distribution):
     
   def _GetAddresses(self, message_info):
     return [message_info.GetListId()]
+    
+class MeRecipientDistribution(Distribution):
+  def __init__(self, year):
+    Distribution.__init__(self, year, "recipient")
+  
+  def _GetAddresses(self, message_info):
+    if message_info.is_from_me:
+      return message_info.GetRecipients()
+    else:
+      return []
+    
+    
+class MeSenderDistribution(Distribution):
+  def __init__(self, year):
+    Distribution.__init__(self, year, "sender")
+  
+  def _GetAddresses(self, message_info):
+    if message_info.is_to_me:
+      return [message_info.GetSender()]    
+    else:
+      return []

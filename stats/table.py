@@ -325,7 +325,7 @@ class MeRecipientTableStat(UniqueAddressTableStat):
   def __init__(self):
     UniqueAddressTableStat.__init__(
       self,
-      "Top recipients from me",
+      "Top people that I send mail to",
       "Recipient",
       "recipient")
   
@@ -339,7 +339,7 @@ class MeSenderTableStat(UniqueAddressTableStat):
   def __init__(self):
     UniqueAddressTableStat.__init__(
         self,
-        "Top senders to me",
+        "Top people that send mail to me",
         "Sender",
         "sender")
   
