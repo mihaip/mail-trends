@@ -78,7 +78,7 @@ class ChartStat(Stat):
 class TitleStat(Stat):
   _TIME_FORMAT = "%B %d %Y"
   
-  def __init__(self, date_range, title):
+  def __init__(self, date_range):
     Stat.__init__(self)
     
     start_sec, end_sec = date_range
@@ -86,8 +86,6 @@ class TitleStat(Stat):
         TitleStat._TIME_FORMAT, time.localtime(start_sec))
     self.__end = time.strftime(
         TitleStat._TIME_FORMAT, time.localtime(end_sec))
-    
-    self.__title = title
     
     self.__message_count = 0
   
@@ -99,7 +97,6 @@ class TitleStat(Stat):
     t = Template(
         file="templates/title-stat.tmpl",
         searchList = {
-          "title": self.__title,
           "start": self.__start,
           "end": self.__end,
           "message_count": self.__message_count,

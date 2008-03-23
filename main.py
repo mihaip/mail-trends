@@ -180,7 +180,7 @@ def ExtractThreads(message_infos):
 
 def InitStats(date_range):
   s = [
-    stats.base.TitleStat(date_range, "All Mail"),
+    stats.base.TitleStat(date_range),
     stats.group.StatTabGroup(
       (
         "Time",
