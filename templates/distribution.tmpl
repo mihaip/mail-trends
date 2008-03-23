@@ -1,3 +1,5 @@
+#import util
+
 <table class="stat distribution" id="$id">  
   <tr>
     <td class="chart">
@@ -11,9 +13,7 @@
       #for $color, $name, $address in $legend
         <li class="$class">
           <div style="background-color: #$color" class="swatch"></div>
-          #filter WebSafe
-          <span title="${address, also='"'}">$name</span>
-          #end filter
+          $util.RenderNameAddress($name, $address)
         </li>
       #end for
       </ul>

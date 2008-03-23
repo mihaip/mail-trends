@@ -1,3 +1,5 @@
+#import util
+
 #filter WebSafe
 <span id="${message_info.headers["message-id"], also='"'}" class="message-id">
 #set $subject = $message_info.GetHeader("subject")
@@ -10,6 +12,8 @@
 </b> 
 $connector 
 #set $name, $address = $message_info.GetSender()
-<i title="${address, also='"'}">$name</i>
 #end filter
+
+$util.RenderNameAddress($name, $address, tag_name="i")
+
 </span>

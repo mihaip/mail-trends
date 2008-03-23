@@ -72,7 +72,6 @@ function addSearchLinks(selector, queryGenerator) {
       runSearch(queryGenerator(node));
     }
   });
-
 }
 
 _(function() {
@@ -107,3 +106,16 @@ _(function() {
       });
 
 });
+
+/**
+ * Used in conjunction with RenderNameAddress to display an email address via
+ * a function call to reduce the likelyhood of scraping.
+ */
+function renderString(var_args) {
+  var chars = [];
+  for (var i = 0; i < arguments.length; i++) {
+    chars.push(String.fromCharCode(arguments[i]));
+  }
+  
+  document.write(chars.join(""));
+}
