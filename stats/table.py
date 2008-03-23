@@ -42,7 +42,12 @@ class TableStat(Stat):
     
     self.__display_data = self._GetDisplayData(table_data)
 
+  def IsEmpty(self):
+    return len(self.__display_data) == 0
+
   def GetHtml(self):
+    if self.IsEmpty(): return ""
+    
     t = Template(
         file="templates/table-stat.tmpl",
         searchList = {

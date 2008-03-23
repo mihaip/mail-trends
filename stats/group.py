@@ -30,6 +30,15 @@ class StatCollection(StatGroup):
     self.__stat_titles.append(None)
   
   def GetHtml(self):
+    all_empty = True
+    
+    for stat in self._stats:
+      if not stat.IsEmpty():
+        all_empty = False
+        break
+    
+    if all_empty: return ""
+    
     t = Template(
         file="templates/stat-collection.tmpl", 
         searchList = {

@@ -43,6 +43,9 @@ class Stat(object):
     self.id = "stat-%d" % Stat._IdIndex
     Stat._IdIndex += 1
   
+  def IsEmpty(self):
+    return False
+  
 class ChartStat(Stat):
   def __init__(self):
     Stat.__init__(self)

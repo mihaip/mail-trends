@@ -58,7 +58,12 @@ class Distribution(ChartStat):
         
         bucket[address] = bucket.get(address, 0) + 1
 
+  def IsEmpty(self):
+    return len(self.__all_addresses) == 0
+
   def GetHtml(self):
+    if self.IsEmpty(): return ""
+    
     # Determine top 10 addresses
     top_addresses = \
         [(count, address) for (address, count) in self.__all_addresses.items()]
