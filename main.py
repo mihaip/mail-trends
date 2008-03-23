@@ -57,10 +57,6 @@ def GetMessageInfos(opts):
   
   message_infos = m.GetMessageInfos()
   
-  # Filter out those that we're not interested in
-  if "filter_out" in opts:
-    message_infos = FilterMessageInfos(message_infos, opts["filter_out"])
-  
   # Then for each mailbox, see which messages are in it, and attach that to 
   # the mail info
   if "skip_labels" not in opts:
@@ -80,6 +76,12 @@ def GetMessageInfos(opts):
           message_info.AddMailbox(mailbox)
   
     messageinfo.MessageInfo.SetParseDate(True)
+
+  m.Logout()
+  
+  # Filter out those that we're not interested in
+  if "filter_out" in opts:
+    message_infos = FilterMessageInfos(message_infos, opts["filter_out"])
   
   # Tag messages as being from the user running the script
   if "me" in opts:
@@ -109,8 +111,6 @@ def GetMessageInfos(opts):
             
     logging.info("  %d messages are from \"me\"" % me_from_count)
     logging.info("  %d messages are to \"me\"" % me_to_count)
-  
-  m.Logout()
   
   return message_infos
 
