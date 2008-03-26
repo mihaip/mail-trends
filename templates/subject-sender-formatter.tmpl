@@ -1,4 +1,4 @@
-#import util
+#from templates.util import RenderNameAddress
 
 #filter WebSafe
 <span id="${message_info.headers["message-id"], also='"'}" class="message-id">
@@ -14,6 +14,6 @@ $connector
 #set $name, $address = $message_info.GetSender()
 #end filter
 
-$util.RenderNameAddress($name, $address, tag_name="i")
+$RenderNameAddress($name, $address, tag_name="i")
 
 </span>

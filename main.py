@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import codecs
 import getopt
 import getpass

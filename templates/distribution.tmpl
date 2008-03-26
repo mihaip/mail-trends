@@ -1,4 +1,4 @@
-#import util
+#from templates.util import RenderNameAddress
 
 <table class="stat distribution" id="$id">  
   <tr>
@@ -13,7 +13,7 @@
       #for $color, $name, $address in $legend
         <li class="$class">
           <div style="background-color: #$color" class="swatch"></div>
-          $util.RenderNameAddress($name, $address)
+          $RenderNameAddress($name, $address)
         </li>
       #end for
       </ul>
