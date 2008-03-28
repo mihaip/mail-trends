@@ -24,7 +24,7 @@ class Mail(object):
     if record or replay:
       self.__cache = cache.FileCache()
     
-    imap_constructor = use_ssl and imaplib.IMAP4_SSL or imablib.IMAP4
+    imap_constructor = use_ssl and imaplib.IMAP4_SSL or imaplib.IMAP4
     
     logging.info("Connecting")
     
