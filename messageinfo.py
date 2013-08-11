@@ -117,17 +117,10 @@ class MessageInfo(object):
     return [self._GetDecodedValue(value) for value in values]
 
   def _GetDecodedValue(self, value):
-    try:
-      pieces = email.header.decode_header(value)
-      unicode_pieces = \
-          [unicode(text, charset or "ascii") for text, charset in pieces]
-      return u"".join(unicode_pieces)
-    except LookupError:
-      # Ignore bogus encodings
-      return value
-    except UnicodeDecodeError:
-      # Ignore mis-encoded data
-      return value
+    pieces = email.header.decode_header(value)
+    unicode_pieces = \
+        [unicode(text, charset or "ascii", errors = "ignore") for text, charset in pieces]
+    return u"".join(unicode_pieces)
 
   def _GetCleanedUpNameAddress(self, name, address):
     address = address.lower()
